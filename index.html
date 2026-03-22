@@ -1,264 +1,299 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Appointment AI</title>
-  <style>
-    /* General Styles */
-    body {
-      margin: 0;
-      font-family: Arial, sans-serif;
-      background-color: #f5f5f5;
-      color: #333;
-    }
-    .container {
-      display: flex;
-      flex-direction: column;
-      padding: 10px;
-    }
-    /* Header */
-    .header h1 {
-      font-size: 32px;
-      font-weight: bold;
-      text-align: center;
-      margin-bottom: 10px;
-    }
-    /* Main Layout */
-    .main-content {
-      display: flex;
-      gap: 10px;
-    }
-    .left-panel {
-      flex: 3;
-      display: flex;
-      flex-direction: column;
-      gap: 10px;
-    }
-    .panel {
-      background-color: #fff;
-      padding: 10px;
-      border-radius: 8px;
-      position: relative;
-      box-shadow: 0 2px 6px rgba(0,0,0,0.1);
-    }
-    .panel h2 {
-      margin-top: 0;
-      font-size: 18px;
-      font-weight: bold;
-    }
-    textarea, .answer-text, input[type="text"] {
-      width: 100%;
-      margin-top: 5px;
-      padding: 5px;
-      font-size: 14px;
-      border-radius: 4px;
-      border: 1px solid #ccc;
-      resize: vertical;
-    }
-    .answer-text {
-      min-height: 60px;
-      border: 1px dashed #aaa;
-      padding: 5px;
-    }
-    .icons {
-      position: absolute;
-      right: 10px;
-      top: 10px;
-    }
-    .icon {
-      cursor: pointer;
-      margin-left: 5px;
-    }
-    ul {
-      list-style-type: none;
-      padding: 0;
-    }
-    li {
-      background-color: #e3f2fd;
-      margin: 5px 0;
-      padding: 5px 8px;
-      border-radius: 4px;
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-    }
-    li span.icon {
-      margin-left: 5px;
-    }
-    .right-panel {
-      flex: 1;
-      display: flex;
-      flex-direction: column;
-      gap: 10px;
-    }
-    .sticky-notes, .reminders {
-      background-color: #fff9c4; 
-      padding: 10px;
-      border-radius: 8px;
-      box-shadow: 0 2px 6px rgba(0,0,0,0.1);
-    }
-    .sticky-notes h2, .reminders h2 {
-      margin-top: 0;
-      font-weight: bold;
-    }
-    button {
-      margin-top: 5px;
-      padding: 5px 8px;
-      cursor: pointer;
-      border: none;
-      background-color: #2196f3;
-      color: white;
-      border-radius: 4px;
-    }
-    button:hover {
-      background-color: #1976d2;
-    }
-  </style>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Appointment AI - Futuristic</title>
+<style>
+  /* General page style */
+  body {
+    margin: 0;
+    font-family: 'Segoe UI', Arial, sans-serif;
+    background-color: #0b0b0b;
+    color: #e0e0e0;
+  }
+
+  .container {
+    display: flex;
+    flex-direction: column;
+    padding: 15px;
+  }
+
+  /* Header */
+  h1 {
+    font-size: 36px;
+    font-weight: bold;
+    text-align: center;
+    color: #ff0033; /* red for bold futuristic title */
+    margin-bottom: 20px;
+    text-shadow: 0 0 10px #ff0033;
+  }
+
+  /* Main content layout */
+  .main-content {
+    display: flex;
+    gap: 15px;
+  }
+
+  .left-panel {
+    flex: 3;
+    display: flex;
+    flex-direction: column;
+    gap: 15px;
+  }
+
+  .panel {
+    background-color: #1e1e1e;
+    border: 1px solid #555;
+    border-left: 4px solid #2196f3; /* neon accent border */
+    border-radius: 10px;
+    padding: 12px;
+    position: relative;
+    box-shadow: 0 0 15px rgba(33, 150, 243, 0.5);
+    transition: 0.3s;
+  }
+
+  .panel:hover {
+    box-shadow: 0 0 20px rgba(33, 150, 243, 0.9);
+  }
+
+  .panel h2 {
+    margin-top: 0;
+    font-weight: bold;
+    font-size: 20px;
+    color: #00ffff; /* cyan/blue title */
+    text-shadow: 0 0 5px #00ffff;
+  }
+
+  textarea, input[type="text"], .answer-text {
+    width: 100%;
+    margin-top: 5px;
+    padding: 6px;
+    font-size: 14px;
+    border-radius: 5px;
+    border: 1px solid #555;
+    background-color: #121212;
+    color: #e0e0e0;
+  }
+
+  .answer-text {
+    min-height: 60px;
+    border: 1px dashed #444;
+    padding: 6px;
+  }
+
+  .icons {
+    position: absolute;
+    top: 10px;
+    right: 10px;
+  }
+
+  .icon {
+    cursor: pointer;
+    margin-left: 5px;
+    color: #ff0033;
+    font-size: 16px;
+    transition: 0.2s;
+  }
+
+  .icon:hover {
+    color: #00ffff;
+    text-shadow: 0 0 6px #00ffff;
+  }
+
+  ul {
+    list-style: none;
+    padding: 0;
+  }
+
+  li {
+    background-color: #2b2b2b;
+    margin: 5px 0;
+    padding: 6px 10px;
+    border-radius: 6px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    border-left: 3px solid #ff0033;
+    transition: 0.3s;
+  }
+
+  li:hover {
+    border-left-color: #00ffff;
+    box-shadow: 0 0 8px #00ffff;
+  }
+
+  /* Right panel */
+  .right-panel {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    gap: 15px;
+  }
+
+  .sticky-notes, .reminders {
+    background-color: #2b2b2b;
+    border-radius: 10px;
+    padding: 12px;
+    border-left: 4px solid #ff0033;
+    box-shadow: 0 0 10px rgba(255, 0, 51, 0.5);
+    transition: 0.3s;
+  }
+
+  .sticky-notes h2, .reminders h2 {
+    margin-top: 0;
+    font-weight: bold;
+    color: #ff0033;
+    text-shadow: 0 0 5px #ff0033;
+  }
+
+  button {
+    margin-top: 5px;
+    padding: 6px 10px;
+    cursor: pointer;
+    border: none;
+    background-color: #2196f3;
+    color: white;
+    border-radius: 5px;
+    transition: 0.3s;
+  }
+
+  button:hover {
+    box-shadow: 0 0 10px #00ffff;
+  }
+</style>
 </head>
 <body>
-  <div class="container">
-    <!-- Top Title -->
-    <header class="header">
-      <h1>Appointment AI</h1>
-    </header>
 
-    <!-- Main Content -->
-    <div class="main-content">
-      <div class="left-panel">
-        <!-- Screenshot Panel -->
-        <div class="panel screenshot-panel">
-          <h2>Screenshot</h2>
-          <textarea placeholder="Paste screenshot text here..."></textarea>
-        </div>
+<div class="container">
+  <h1>Appointment AI</h1>
+  <div class="main-content">
+    <!-- Left Panels -->
+    <div class="left-panel">
+      <div class="panel screenshot-panel">
+        <h2>Screenshot</h2>
+        <textarea placeholder="Paste screenshot text here..."></textarea>
+      </div>
 
-        <!-- Answer Display Panel -->
-        <div class="panel answer-panel">
-          <h2>Answer</h2>
-          <div class="answer-text" contenteditable="true"></div>
-          <div class="icons">
-            <span class="icon edit" title="Edit">✏️</span>
-          </div>
-        </div>
-
-        <!-- Manual Question Input Panel -->
-        <div class="panel question-panel">
-          <h2>Manual Questions</h2>
-          <ul id="question-list"></ul>
-          <input type="text" id="question-input" placeholder="Type your question">
-          <button id="add-question">Add Question</button>
-        </div>
-
-        <!-- Knowledge Base Section -->
-        <div class="panel kb-panel">
-          <h2>Knowledge Base</h2>
-          <ul id="kb-list"></ul>
-          <input type="text" id="kb-question" placeholder="Question">
-          <input type="text" id="kb-answer" placeholder="Answer">
-          <input type="text" id="kb-objection" placeholder="Objection">
-          <button id="add-kb">Add Entry</button>
-        </div>
-
-        <!-- Frequently Asked Questions Panel -->
-        <div class="panel faq-panel">
-          <h2>Frequently Asked Questions</h2>
-          <ul id="faq-list"></ul>
+      <div class="panel answer-panel">
+        <h2>Answer</h2>
+        <div class="answer-text" contenteditable="true"></div>
+        <div class="icons">
+          <span class="icon" title="Edit">✏️</span>
         </div>
       </div>
 
-      <!-- Right Side Panel -->
-      <div class="right-panel">
-        <!-- Sticky Notes -->
-        <div class="sticky-notes">
-          <h2>Sticky Notes</h2>
-          <ul id="sticky-list"></ul>
-          <textarea id="sticky-input" placeholder="Add sticky note..."></textarea>
-          <button id="add-sticky">Add Note</button>
-        </div>
+      <div class="panel question-panel">
+        <h2>Manual Questions</h2>
+        <ul id="question-list"></ul>
+        <input type="text" id="question-input" placeholder="Type your question">
+        <button id="add-question">Add Question</button>
+      </div>
 
-        <!-- Reminders -->
-        <div class="reminders">
-          <h2>Reminders</h2>
-          <ul id="reminder-list"></ul>
-          <textarea id="reminder-input" placeholder="Add reminder..."></textarea>
-          <button id="add-reminder">Add Reminder</button>
-        </div>
+      <div class="panel kb-panel">
+        <h2>Knowledge Base</h2>
+        <ul id="kb-list"></ul>
+        <input type="text" id="kb-question" placeholder="Question">
+        <input type="text" id="kb-answer" placeholder="Answer">
+        <input type="text" id="kb-objection" placeholder="Objection">
+        <button id="add-kb">Add Entry</button>
+      </div>
+
+      <div class="panel faq-panel">
+        <h2>Frequently Asked Questions</h2>
+        <ul id="faq-list"></ul>
+      </div>
+    </div>
+
+    <!-- Right Panels -->
+    <div class="right-panel">
+      <div class="sticky-notes">
+        <h2>Sticky Notes</h2>
+        <ul id="sticky-list"></ul>
+        <textarea id="sticky-input" placeholder="Add sticky note..."></textarea>
+        <button id="add-sticky">Add Note</button>
+      </div>
+
+      <div class="reminders">
+        <h2>Reminders</h2>
+        <ul id="reminder-list"></ul>
+        <textarea id="reminder-input" placeholder="Add reminder..."></textarea>
+        <button id="add-reminder">Add Reminder</button>
       </div>
     </div>
   </div>
+</div>
 
-  <script>
-    // Utility function to create list item with right-side icons
-    function createListItem(text, list) {
-      const li = document.createElement('li');
-      li.textContent = text;
+<script>
+function createListItem(text, list) {
+  const li = document.createElement('li');
+  li.textContent = text;
 
-      const editIcon = document.createElement('span');
-      editIcon.textContent = '✏️';
-      editIcon.classList.add('icon');
-      editIcon.onclick = () => {
-        const newText = prompt('Edit text:', li.firstChild.textContent);
-        if (newText) li.firstChild.textContent = newText;
-      };
+  const editIcon = document.createElement('span');
+  editIcon.textContent = '✏️';
+  editIcon.classList.add('icon');
+  editIcon.onclick = () => {
+    const newText = prompt('Edit text:', li.firstChild.textContent);
+    if (newText) li.firstChild.textContent = newText;
+  };
 
-      const saveIcon = document.createElement('span');
-      saveIcon.textContent = '💾';
-      saveIcon.classList.add('icon');
-      saveIcon.onclick = () => alert('Saved: ' + li.firstChild.textContent);
+  const saveIcon = document.createElement('span');
+  saveIcon.textContent = '💾';
+  saveIcon.classList.add('icon');
+  saveIcon.onclick = () => alert('Saved: ' + li.firstChild.textContent);
 
-      const deleteIcon = document.createElement('span');
-      deleteIcon.textContent = '❌';
-      deleteIcon.classList.add('icon');
-      deleteIcon.onclick = () => li.remove();
+  const deleteIcon = document.createElement('span');
+  deleteIcon.textContent = '❌';
+  deleteIcon.classList.add('icon');
+  deleteIcon.onclick = () => li.remove();
 
-      li.appendChild(editIcon);
-      li.appendChild(saveIcon);
-      li.appendChild(deleteIcon);
+  li.appendChild(editIcon);
+  li.appendChild(saveIcon);
+  li.appendChild(deleteIcon);
 
-      list.appendChild(li);
-    }
+  list.appendChild(li);
+}
 
-    // Manual Questions
-    document.getElementById('add-question').onclick = () => {
-      const input = document.getElementById('question-input');
-      if (input.value.trim() !== '') {
-        createListItem(input.value, document.getElementById('question-list'));
-        input.value = '';
-      }
-    };
+// Manual Questions
+document.getElementById('add-question').onclick = () => {
+  const input = document.getElementById('question-input');
+  if (input.value.trim() !== '') {
+    createListItem(input.value, document.getElementById('question-list'));
+    input.value = '';
+  }
+};
 
-    // Knowledge Base
-    document.getElementById('add-kb').onclick = () => {
-      const question = document.getElementById('kb-question').value;
-      const answer = document.getElementById('kb-answer').value;
-      const objection = document.getElementById('kb-objection').value;
-      if (question.trim() !== '' || answer.trim() !== '' || objection.trim() !== '') {
-        createListItem(`Q: ${question} | A: ${answer} | O: ${objection}`, document.getElementById('kb-list'));
-        document.getElementById('kb-question').value = '';
-        document.getElementById('kb-answer').value = '';
-        document.getElementById('kb-objection').value = '';
-      }
-    };
+// Knowledge Base
+document.getElementById('add-kb').onclick = () => {
+  const question = document.getElementById('kb-question').value;
+  const answer = document.getElementById('kb-answer').value;
+  const objection = document.getElementById('kb-objection').value;
+  if (question.trim() || answer.trim() || objection.trim()) {
+    createListItem(`Q: ${question} | A: ${answer} | O: ${objection}`, document.getElementById('kb-list'));
+    document.getElementById('kb-question').value = '';
+    document.getElementById('kb-answer').value = '';
+    document.getElementById('kb-objection').value = '';
+  }
+};
 
-    // Sticky Notes
-    document.getElementById('add-sticky').onclick = () => {
-      const input = document.getElementById('sticky-input');
-      if (input.value.trim() !== '') {
-        createListItem(input.value, document.getElementById('sticky-list'));
-        input.value = '';
-      }
-    };
+// Sticky Notes
+document.getElementById('add-sticky').onclick = () => {
+  const input = document.getElementById('sticky-input');
+  if (input.value.trim() !== '') {
+    createListItem(input.value, document.getElementById('sticky-list'));
+    input.value = '';
+  }
+};
 
-    // Reminders
-    document.getElementById('add-reminder').onclick = () => {
-      const input = document.getElementById('reminder-input');
-      if (input.value.trim() !== '') {
-        createListItem(input.value, document.getElementById('reminder-list'));
-        input.value = '';
-      }
-    };
-  </script>
+// Reminders
+document.getElementById('add-reminder').onclick = () => {
+  const input = document.getElementById('reminder-input');
+  if (input.value.trim() !== '') {
+    createListItem(input.value, document.getElementById('reminder-list'));
+    input.value = '';
+  }
+};
+</script>
+
 </body>
 </html>
-
-This single file includes everything — you just save it as index.htm
