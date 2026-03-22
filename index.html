@@ -5,162 +5,149 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Appointment AI - Futuristic</title>
 <style>
-  /* General page style */
-  body {
-    margin: 0;
-    font-family: 'Segoe UI', Arial, sans-serif;
-    background-color: #0b0b0b;
-    color: #e0e0e0;
-  }
+/* General page style */
+body {
+  margin: 0;
+  font-family: 'Segoe UI', Arial, sans-serif;
+  background-color: #0b0b0b;
+  color: #e0e0e0;
+}
 
-  .container {
-    display: flex;
-    flex-direction: column;
-    padding: 15px;
-  }
+/* Container */
+.container {
+  display: flex;
+  flex-direction: column;
+  padding: 20px;
+  gap: 20px;
+}
 
-  /* Header */
-  h1 {
-    font-size: 36px;
-    font-weight: bold;
-    text-align: center;
-    color: #ff0033; /* red for bold futuristic title */
-    margin-bottom: 20px;
-    text-shadow: 0 0 10px #ff0033;
-  }
+/* Header */
+h1 {
+  font-size: 36px;
+  font-weight: bold;
+  text-align: center;
+  color: #ff0033;
+  text-shadow: 0 0 10px #ff0033;
+  margin-bottom: 15px;
+}
 
-  /* Main content layout */
-  .main-content {
-    display: flex;
-    gap: 15px;
-  }
+/* Main content layout */
+.main-content {
+  display: flex;
+  gap: 15px;
+  align-items: flex-start;
+}
 
-  .left-panel {
-    flex: 3;
-    display: flex;
-    flex-direction: column;
-    gap: 15px;
-  }
+/* Left panel */
+.left-panel {
+  flex: 3;
+  display: flex;
+  flex-direction: column;
+  gap: 15px;
+}
 
-  .panel {
-    background-color: #1e1e1e;
-    border: 1px solid #555;
-    border-left: 4px solid #2196f3; /* neon accent border */
-    border-radius: 10px;
-    padding: 12px;
-    position: relative;
-    box-shadow: 0 0 15px rgba(33, 150, 243, 0.5);
-    transition: 0.3s;
-  }
+/* Panels styling */
+.panel {
+  background-color: #1e1e1e;
+  border-radius: 10px;
+  padding: 12px;
+  position: relative;
+  border-left: 4px solid #2196f3;
+  box-shadow: 0 0 15px rgba(33, 150, 243, 0.5);
+  transition: 0.3s;
+}
+.panel:hover { box-shadow: 0 0 20px rgba(33, 150, 243, 0.9); }
 
-  .panel:hover {
-    box-shadow: 0 0 20px rgba(33, 150, 243, 0.9);
-  }
+.panel h2 {
+  margin-top: 0;
+  font-weight: bold;
+  font-size: 20px;
+  color: #00ffff;
+  text-shadow: 0 0 5px #00ffff;
+}
 
-  .panel h2 {
-    margin-top: 0;
-    font-weight: bold;
-    font-size: 20px;
-    color: #00ffff; /* cyan/blue title */
-    text-shadow: 0 0 5px #00ffff;
-  }
+/* Inputs and text areas */
+textarea, input[type="text"], .answer-text {
+  width: 100%;
+  margin-top: 5px;
+  padding: 6px;
+  font-size: 14px;
+  border-radius: 5px;
+  border: 1px solid #555;
+  background-color: #121212;
+  color: #e0e0e0;
+}
+.answer-text { min-height: 60px; border: 1px dashed #444; padding: 6px; }
 
-  textarea, input[type="text"], .answer-text {
-    width: 100%;
-    margin-top: 5px;
-    padding: 6px;
-    font-size: 14px;
-    border-radius: 5px;
-    border: 1px solid #555;
-    background-color: #121212;
-    color: #e0e0e0;
-  }
+/* Icons */
+.icons {
+  position: absolute;
+  top: 10px;
+  right: 10px;
+}
+.icon {
+  cursor: pointer;
+  margin-left: 5px;
+  font-size: 18px;
+  color: #ff0033;
+  transition: 0.2s;
+}
+.icon:hover { color: #00ffff; text-shadow: 0 0 6px #00ffff; }
 
-  .answer-text {
-    min-height: 60px;
-    border: 1px dashed #444;
-    padding: 6px;
-  }
+/* Lists */
+ul { list-style: none; padding: 0; }
+li {
+  background-color: #2b2b2b;
+  margin: 5px 0;
+  padding: 6px 10px;
+  border-radius: 6px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  border-left: 3px solid #ff0033;
+  transition: 0.3s;
+}
+li:hover { border-left-color: #00ffff; box-shadow: 0 0 8px #00ffff; }
 
-  .icons {
-    position: absolute;
-    top: 10px;
-    right: 10px;
-  }
+/* Right panel */
+.right-panel {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  gap: 15px;
+  min-width: 250px;
+}
 
-  .icon {
-    cursor: pointer;
-    margin-left: 5px;
-    color: #ff0033;
-    font-size: 16px;
-    transition: 0.2s;
-  }
+/* Sticky notes & reminders */
+.sticky-notes, .reminders {
+  background-color: #2b2b2b;
+  border-radius: 10px;
+  padding: 12px;
+  border-left: 4px solid #ff0033;
+  box-shadow: 0 0 12px rgba(255, 0, 51, 0.5);
+}
+.sticky-notes h2, .reminders h2 {
+  margin-top: 0;
+  font-weight: bold;
+  color: #ff0033;
+  text-shadow: 0 0 5px #ff0033;
+}
 
-  .icon:hover {
-    color: #00ffff;
-    text-shadow: 0 0 6px #00ffff;
-  }
+/* Buttons */
+button {
+  margin-top: 5px;
+  padding: 6px 10px;
+  cursor: pointer;
+  border: none;
+  background-color: #2196f3;
+  color: white;
+  border-radius: 5px;
+  transition: 0.3s;
+}
+button:hover { box-shadow: 0 0 10px #00ffff; }
 
-  ul {
-    list-style: none;
-    padding: 0;
-  }
-
-  li {
-    background-color: #2b2b2b;
-    margin: 5px 0;
-    padding: 6px 10px;
-    border-radius: 6px;
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    border-left: 3px solid #ff0033;
-    transition: 0.3s;
-  }
-
-  li:hover {
-    border-left-color: #00ffff;
-    box-shadow: 0 0 8px #00ffff;
-  }
-
-  /* Right panel */
-  .right-panel {
-    flex: 1;
-    display: flex;
-    flex-direction: column;
-    gap: 15px;
-  }
-
-  .sticky-notes, .reminders {
-    background-color: #2b2b2b;
-    border-radius: 10px;
-    padding: 12px;
-    border-left: 4px solid #ff0033;
-    box-shadow: 0 0 10px rgba(255, 0, 51, 0.5);
-    transition: 0.3s;
-  }
-
-  .sticky-notes h2, .reminders h2 {
-    margin-top: 0;
-    font-weight: bold;
-    color: #ff0033;
-    text-shadow: 0 0 5px #ff0033;
-  }
-
-  button {
-    margin-top: 5px;
-    padding: 6px 10px;
-    cursor: pointer;
-    border: none;
-    background-color: #2196f3;
-    color: white;
-    border-radius: 5px;
-    transition: 0.3s;
-  }
-
-  button:hover {
-    box-shadow: 0 0 10px #00ffff;
-  }
+/* Scrollable lists if too many items */
+ul { max-height: 200px; overflow-y: auto; }
 </style>
 </head>
 <body>
@@ -168,13 +155,16 @@
 <div class="container">
   <h1>Appointment AI</h1>
   <div class="main-content">
+
     <!-- Left Panels -->
     <div class="left-panel">
+      <!-- Screenshot Panel -->
       <div class="panel screenshot-panel">
         <h2>Screenshot</h2>
         <textarea placeholder="Paste screenshot text here..."></textarea>
       </div>
 
+      <!-- Answer Panel -->
       <div class="panel answer-panel">
         <h2>Answer</h2>
         <div class="answer-text" contenteditable="true"></div>
@@ -183,6 +173,7 @@
         </div>
       </div>
 
+      <!-- Manual Questions -->
       <div class="panel question-panel">
         <h2>Manual Questions</h2>
         <ul id="question-list"></ul>
@@ -190,6 +181,7 @@
         <button id="add-question">Add Question</button>
       </div>
 
+      <!-- Knowledge Base -->
       <div class="panel kb-panel">
         <h2>Knowledge Base</h2>
         <ul id="kb-list"></ul>
@@ -199,6 +191,7 @@
         <button id="add-kb">Add Entry</button>
       </div>
 
+      <!-- Frequently Asked Questions -->
       <div class="panel faq-panel">
         <h2>Frequently Asked Questions</h2>
         <ul id="faq-list"></ul>
@@ -221,10 +214,12 @@
         <button id="add-reminder">Add Reminder</button>
       </div>
     </div>
+
   </div>
 </div>
 
 <script>
+// Utility to create list items with icons
 function createListItem(text, list) {
   const li = document.createElement('li');
   li.textContent = text;
@@ -234,7 +229,7 @@ function createListItem(text, list) {
   editIcon.classList.add('icon');
   editIcon.onclick = () => {
     const newText = prompt('Edit text:', li.firstChild.textContent);
-    if (newText) li.firstChild.textContent = newText;
+    if(newText) li.firstChild.textContent = newText;
   };
 
   const saveIcon = document.createElement('span');
@@ -254,46 +249,45 @@ function createListItem(text, list) {
   list.appendChild(li);
 }
 
-// Manual Questions
+// Add manual question
 document.getElementById('add-question').onclick = () => {
   const input = document.getElementById('question-input');
-  if (input.value.trim() !== '') {
+  if(input.value.trim() !== '') {
     createListItem(input.value, document.getElementById('question-list'));
     input.value = '';
   }
 };
 
-// Knowledge Base
+// Add Knowledge Base entry
 document.getElementById('add-kb').onclick = () => {
-  const question = document.getElementById('kb-question').value;
-  const answer = document.getElementById('kb-answer').value;
-  const objection = document.getElementById('kb-objection').value;
-  if (question.trim() || answer.trim() || objection.trim()) {
-    createListItem(`Q: ${question} | A: ${answer} | O: ${objection}`, document.getElementById('kb-list'));
+  const q = document.getElementById('kb-question').value;
+  const a = document.getElementById('kb-answer').value;
+  const o = document.getElementById('kb-objection').value;
+  if(q.trim() || a.trim() || o.trim()) {
+    createListItem(`Q: ${q} | A: ${a} | O: ${o}`, document.getElementById('kb-list'));
     document.getElementById('kb-question').value = '';
     document.getElementById('kb-answer').value = '';
     document.getElementById('kb-objection').value = '';
   }
 };
 
-// Sticky Notes
+// Add Sticky Note
 document.getElementById('add-sticky').onclick = () => {
   const input = document.getElementById('sticky-input');
-  if (input.value.trim() !== '') {
+  if(input.value.trim() !== '') {
     createListItem(input.value, document.getElementById('sticky-list'));
     input.value = '';
   }
 };
 
-// Reminders
+// Add Reminder
 document.getElementById('add-reminder').onclick = () => {
   const input = document.getElementById('reminder-input');
-  if (input.value.trim() !== '') {
+  if(input.value.trim() !== '') {
     createListItem(input.value, document.getElementById('reminder-list'));
     input.value = '';
   }
 };
 </script>
-
 </body>
 </html>
