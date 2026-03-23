@@ -3,43 +3,65 @@
 <head>
 <meta charset="UTF-8">
 <title>Appointment AI</title>
-
 <style>
-body {
+/* GLOBAL STYLES */
+body, html {
   margin:0;
+  padding:0;
+  height:100%;
   font-family: 'Segoe UI', sans-serif;
-  background: radial-gradient(circle at top, #0a0f1f, #000);
-  color: white;
+  background: linear-gradient(135deg, #0a0f1f, #000);
+  color:white;
+  overflow:hidden;
 }
 
-h1 {
-  text-align:center;
-  color:#00d4ff;
-  text-shadow:0 0 10px #00d4ff;
-}
-
-.container {
+/* LOGIN SCREEN */
+#loginScreen {
+  position:fixed;
+  width:100%;
+  height:100%;
   display:flex;
-  height:100vh;
+  justify-content:center;
+  align-items:center;
+  background: linear-gradient(135deg, #0a0f1f, #000);
+}
+#loginCard {
+  background:rgba(0,0,0,0.8);
+  padding:30px;
+  border-radius:15px;
+  box-shadow:0 0 20px #00d4ff;
+  text-align:center;
+}
+#loginCard input {
+  width:200px;
+  padding:8px;
+  margin:10px 0;
+  border-radius:5px;
+  border:none;
 }
 
-/* LEFT PANEL */
+/* MAIN CONTAINER */
+#mainApp {
+  display:flex;
+  height:100%;
+  width:100%;
+  display:none;
+}
+
+/* PANELS */
 .left {
   width:70%;
   padding:15px;
   overflow:auto;
 }
-
-/* RIGHT PANEL */
 .right {
   width:30%;
-  background:#111;
   padding:10px;
   overflow:auto;
   border-left:2px solid #00d4ff;
 }
 
-/* PANELS */
+/* PANELS STYLE */
 .panel {
   background:rgba(255,255,255,0.05);
   margin-bottom:15px;
@@ -48,14 +70,25 @@ h1 {
   box-shadow:0 0 10px rgba(0,212,255,0.2);
 }
 
-/* BUTTON */
-button {
-  background:#00d4ff;
-  border:none;
-  padding:5px 10px;
-  margin-top:5px;
+/* CARD / NOTE */
+.card {
+  background:#111;
+  padding:10px;
+  margin-top:10px;
+  border-left:3px solid #00d4ff;
+  position:relative;
+}
+
+/* ICONS */
+.icons {
+  position:absolute;
+  right:5px;
+  top:5px;
+}
+.icons span {
   cursor:pointer;
-  border-radius:5px;
+  margin-left:8px;
+  font-size:16px;
 }
 
 /* EDITOR */
@@ -65,6 +98,7 @@ button {
   background:#000;
   border:1px solid #333;
   margin-top:5px;
+  color:white;
 }
 
 /* TOOLBAR */
@@ -72,178 +106,212 @@ button {
   background:#222;
   color:white;
   margin-right:5px;
-}
-
-/* CARD */
-.card {
-  background:#111;
-  padding:10px;
-  margin-top:10px;
-  border-left:3px solid #00d4ff;
-  position:relative;
-}
-
-/* ICONS RIGHT */
-.icons {
-  position:absolute;
-  right:5px;
-  top:5px;
-}
-
-.icons span {
   cursor:pointer;
-  margin-left:8px;
+  padding:2px 6px;
+  border-radius:3px;
+}
+
+/* HEADER */
+h1 {
+  text-align:center;
+  color:#00d4ff;
+  text-shadow:0 0 10px #00d4ff;
 }
 </style>
 </head>
-
 <body>
 
-<h1>Appointment AI</h1>
-
-<div class="container">
-
-<!-- LEFT -->
-<div class="left">
-
-<div class="panel">
-<h3>Screenshot Input</h3>
-<textarea id="screenshotInput" style="width:100%;height:80px;"></textarea>
-<button onclick="processText()">Analyze</button>
+<!-- LOGIN SCREEN -->
+<div id="loginScreen">
+  <div id="loginCard">
+    <h2>Login</h2>
+    <input id="username" placeholder="Username"><br>
+    <input id="password" placeholder="Password" type="password"><br>
+    <button onclick="login()">Login</button>
+  </div>
 </div>
 
-<div class="panel">
-<h3>Answer</h3>
-<div id="answerOutput"></div>
-</div>
+<!-- MAIN APP -->
+<div id="mainApp">
+  <div class="left">
+    <h1>Appointment AI</h1>
 
-<div class="panel">
-<h3>Manual Add (Q / Objection / Answer)</h3>
+    <div class="panel">
+      <h3>Screenshot Input (Collapsible)</h3>
+      <textarea id="screenshotInput" style="width:100%;height:80px;"></textarea>
+      <button onclick="processText()">Analyze</button>
+    </div>
 
-<div class="toolbar">
-<button onclick="format('bold')">B</button>
-<button onclick="format('italic')">I</button>
-<button onclick="format('underline')">U</button>
-</div>
+    <div class="panel">
+      <h3>Answer Output</h3>
+      <div id="answerOutput"></div>
+    </div>
 
-<div id="q" class="editor" contenteditable="true">Question</div>
-<div id="o" class="editor" contenteditable="true">Objection</div>
-<div id="a" class="editor" contenteditable="true">Answer</div>
+    <div class="panel">
+      <h3>Manual Add (Q / Objection / Answer)</h3>
+      <div class="toolbar">
+        <button onclick="format('bold')">B</button>
+        <button onclick="format('italic')">I</button>
+        <button onclick="format('underline')">U</button>
+      </div>
+      <div id="q" class="editor" contenteditable="true" placeholder="Question">Question</div>
+      <div id="o" class="editor" contenteditable="true" placeholder="Objection">Objection</div>
+      <div id="a" class="editor" contenteditable="true" placeholder="Answer">Answer</div>
+      <button onclick="addEntry()">Add Entry</button>
+      <div id="entries"></div>
+    </div>
 
-<button onclick="addEntry()">Add</button>
+    <h2>Knowledge Base</h2>
+    <div class="panel" id="faqPanel">
+      <h3>Frequently Asked Questions</h3>
+      <div id="faq"></div>
+    </div>
 
-<div id="entries"></div>
-</div>
+  </div>
 
-<h2>Knowledge Base</h2>
-
-<div class="panel" id="faqPanel">
-<h3>Frequently Asked</h3>
-<div id="faq"></div>
-</div>
-
-</div>
-
-<!-- RIGHT -->
-<div class="right">
-
-<div class="panel">
-<h3>Notes / Reminders</h3>
-<div class="toolbar">
-<button onclick="format('bold')">B</button>
-<button onclick="format('italic')">I</button>
-</div>
-
-<div id="noteInput" class="editor" contenteditable="true"></div>
-<button onclick="addNote()">Add Note</button>
-
-<div id="notes"></div>
-</div>
-
-</div>
-
+  <div class="right">
+    <div class="panel">
+      <h3>Sticky Notes / Reminders</h3>
+      <div class="toolbar">
+        <button onclick="format('bold')">B</button>
+        <button onclick="format('italic')">I</button>
+        <button onclick="format('underline')">U</button>
+      </div>
+      <div id="noteInput" class="editor" contenteditable="true" placeholder="Write note..."></div>
+      <button onclick="addNote()">Add Note</button>
+      <div id="notes"></div>
+    </div>
+  </div>
 </div>
 
 <script>
+/* LOGIN */
+function login(){
+  let user = document.getElementById('username').value;
+  let pass = document.getElementById('password').value;
+  if(user && pass){
+    document.getElementById('loginScreen').style.display='none';
+    document.getElementById('mainApp').style.display='flex';
+    loadNotes();
+    loadEntries();
+  } else {
+    alert('Enter username and password');
+  }
+}
 
-let db = [];
-
+/* FORMAT */
 function format(cmd){
- document.execCommand(cmd,false,null);
+  document.execCommand(cmd,false,null);
 }
 
-function addEntry(){
- let q = document.getElementById('q').innerHTML;
- let o = document.getElementById('o').innerHTML;
- let a = document.getElementById('a').innerHTML;
+/* =================================
+   STICKY NOTES (Persistent + Full)
+================================= */
+let notesDB = JSON.parse(localStorage.getItem('notesDB')||'[]');
 
- let entry = {q,o,a};
- db.push(entry);
- renderEntries();
- autoFAQ(entry);
-
- document.getElementById('q').innerHTML='';
- document.getElementById('o').innerHTML='';
- document.getElementById('a').innerHTML='';
+function renderNotes(){
+  const container = document.getElementById('notes');
+  container.innerHTML = '';
+  notesDB.forEach((note,i)=>{
+    const noteDiv = document.createElement('div');
+    noteDiv.className='card';
+    noteDiv.innerHTML = `
+      <div class="icons">
+        <span onclick="toggleEdit(${i})">✏</span>
+        <span onclick="saveNote(${i})">💾</span>
+        <span onclick="deleteNote(${i})">🗑</span>
+        <span onclick="collapseNote(${i})">⬇</span>
+      </div>
+      <div class="toolbar">
+        <button onclick="format('bold')">B</button>
+        <button onclick="format('italic')">I</button>
+        <button onclick="format('underline')">U</button>
+      </div>
+      <div class="editor noteText" contenteditable="true">${note}</div>
+    `;
+    container.appendChild(noteDiv);
+  });
 }
-
-function renderEntries(){
- let html='';
- db.forEach((e,i)=>{
-  html+=`
-  <div class="card">
-  <div class="icons">
-  <span onclick="deleteEntry(${i})">🗑</span>
-  </div>
-  <b>Q:</b>${e.q}<br>
-  <b>O:</b>${e.o}<br>
-  <b>A:</b>${e.a}
-  </div>`;
- });
- document.getElementById('entries').innerHTML=html;
-}
-
-function deleteEntry(i){
- db.splice(i,1);
- renderEntries();
-}
-
-function processText(){
- let input = document.getElementById('screenshotInput').value.toLowerCase();
-
- let found = db.find(e=> input.includes(e.q.toLowerCase()));
-
- if(found){
-  document.getElementById('answerOutput').innerHTML=found.a;
- }else{
-  document.getElementById('answerOutput').innerHTML="No match found";
- }
-}
-
-function autoFAQ(entry){
- let faq = document.getElementById('faq');
- faq.innerHTML += `<div class="card">${entry.q}<br>${entry.a}</div>`;
-}
-
-/* NOTES */
 
 function addNote(){
- let text = document.getElementById('noteInput').innerHTML;
+  const text = document.getElementById('noteInput').innerHTML;
+  if(!text.trim()) return;
+  notesDB.push(text);
+  localStorage.setItem('notesDB', JSON.stringify(notesDB));
+  document.getElementById('noteInput').innerHTML='';
+  renderNotes();
+}
+function toggleEdit(index){
+  const editor = document.getElementById('notes').children[index].querySelector('.noteText');
+  if(editor.getAttribute('contenteditable')==='true'){
+    editor.setAttribute('contenteditable','false'); editor.style.opacity='0.7';
+  } else {
+    editor.setAttribute('contenteditable','true'); editor.style.opacity='1';
+  }
+}
+function saveNote(index){
+  const editor = document.getElementById('notes').children[index].querySelector('.noteText');
+  notesDB[index] = editor.innerHTML;
+  localStorage.setItem('notesDB', JSON.stringify(notesDB));
+}
+function deleteNote(index){ notesDB.splice(index,1); localStorage.setItem('notesDB', JSON.stringify(notesDB)); renderNotes(); }
+function collapseNote(index){
+  const editor = document.getElementById('notes').children[index].querySelector('.noteText');
+  editor.style.display = editor.style.display==='none'?'block':'none';
+}
+function loadNotes(){ renderNotes(); }
 
- let note = document.createElement('div');
- note.className='card';
- note.innerHTML = `
- <div class="icons">
- <span onclick="this.parentElement.parentElement.remove()">🗑</span>
- </div>
- ${text}
- `;
+/* =================================
+   MANUAL ADD (Q/O/A)
+================================= */
+let db = JSON.parse(localStorage.getItem('manualDB')||'[]');
+function addEntry(){
+  let q = document.getElementById('q').innerHTML;
+  let o = document.getElementById('o').innerHTML;
+  let a = document.getElementById('a').innerHTML;
+  if(!q.trim() && !o.trim() && !a.trim()) return;
+  db.push({q,o,a});
+  localStorage.setItem('manualDB', JSON.stringify(db));
+  renderEntries();
+  autoFAQ({q,o,a});
+  document.getElementById('q').innerHTML='';
+  document.getElementById('o').innerHTML='';
+  document.getElementById('a').innerHTML='';
+}
+function renderEntries(){
+  let html='';
+  db.forEach((e,i)=>{
+    html+=`
+      <div class="card">
+        <div class="icons">
+          <span onclick="deleteEntry(${i})">🗑</span>
+        </div>
+        <b>Q:</b> ${e.q}<br>
+        <b>O:</b> ${e.o}<br>
+        <b>A:</b> ${e.a}
+      </div>`;
+  });
+  document.getElementById('entries').innerHTML=html;
+}
+function deleteEntry(i){ db.splice(i,1); localStorage.setItem('manualDB', JSON.stringify(db)); renderEntries(); }
+function loadEntries(){ renderEntries(); }
 
- document.getElementById('notes').appendChild(note);
- document.getElementById('noteInput').innerHTML='';
+/* =================================
+   FAQ AUTO
+================================= */
+function autoFAQ(entry){
+  const faq = document.getElementById('faq');
+  faq.innerHTML += `<div class="card"><b>Q:</b> ${entry.q}<br><b>A:</b> ${entry.a}</div>`;
 }
 
+/* =================================
+   SCREENSHOT PROCESSING (Simple)
+================================= */
+function processText(){
+  const input = document.getElementById('screenshotInput').value.toLowerCase();
+  const found = db.find(e=> input.includes(e.q.toLowerCase()));
+  document.getElementById('answerOutput').innerHTML=found?found.a:"No match found";
+}
 </script>
-
 </body>
 </html>
