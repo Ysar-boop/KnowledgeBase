@@ -4,290 +4,249 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Appointment AI - Futuristic</title>
+
 <style>
-/* General page style */
 body {
-  margin: 0;
-  font-family: 'Segoe UI', Arial, sans-serif;
-  background-color: #0b0b0b;
-  color: #e0e0e0;
+  margin:0;
+  font-family:Segoe UI;
+  background:#0b0b0b;
+  color:#e0e0e0;
 }
-
-/* Container */
-.container {
-  display: flex;
-  flex-direction: column;
-  padding: 20px;
-  gap: 20px;
-}
-
-/* Header */
+.container { padding:20px; }
 h1 {
-  font-size: 36px;
-  font-weight: bold;
-  text-align: center;
-  color: #ff0033;
-  text-shadow: 0 0 10px #ff0033;
-  margin-bottom: 15px;
+  text-align:center;
+  color:#ff0033;
+  text-shadow:0 0 10px #ff0033;
 }
 
-/* Main content layout */
-.main-content {
-  display: flex;
-  gap: 15px;
-  align-items: flex-start;
-}
+.main { display:flex; gap:15px; }
 
-/* Left panel */
-.left-panel {
-  flex: 3;
-  display: flex;
-  flex-direction: column;
-  gap: 15px;
-}
-
-/* Panels styling */
+/* Panels */
 .panel {
-  background-color: #1e1e1e;
-  border-radius: 10px;
-  padding: 12px;
-  position: relative;
-  border-left: 4px solid #2196f3;
-  box-shadow: 0 0 15px rgba(33, 150, 243, 0.5);
-  transition: 0.3s;
+  background:#1e1e1e;
+  padding:10px;
+  border-radius:10px;
+  margin-bottom:10px;
+  box-shadow:0 0 10px rgba(0,255,255,0.3);
 }
-.panel:hover { box-shadow: 0 0 20px rgba(33, 150, 243, 0.9); }
-
 .panel h2 {
-  margin-top: 0;
-  font-weight: bold;
-  font-size: 20px;
-  color: #00ffff;
-  text-shadow: 0 0 5px #00ffff;
+  color:#00ffff;
 }
 
-/* Inputs and text areas */
-textarea, input[type="text"], .answer-text {
-  width: 100%;
-  margin-top: 5px;
-  padding: 6px;
-  font-size: 14px;
-  border-radius: 5px;
-  border: 1px solid #555;
-  background-color: #121212;
-  color: #e0e0e0;
-}
-.answer-text { min-height: 60px; border: 1px dashed #444; padding: 6px; }
-
-/* Icons */
-.icons {
-  position: absolute;
-  top: 10px;
-  right: 10px;
-}
-.icon {
-  cursor: pointer;
-  margin-left: 5px;
-  font-size: 18px;
-  color: #ff0033;
-  transition: 0.2s;
-}
-.icon:hover { color: #00ffff; text-shadow: 0 0 6px #00ffff; }
+/* Layout */
+.left { flex:3; }
+.right { flex:1; }
 
 /* Lists */
-ul { list-style: none; padding: 0; }
+ul { list-style:none; padding:0; }
 li {
-  background-color: #2b2b2b;
-  margin: 5px 0;
-  padding: 6px 10px;
-  border-radius: 6px;
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  border-left: 3px solid #ff0033;
-  transition: 0.3s;
-}
-li:hover { border-left-color: #00ffff; box-shadow: 0 0 8px #00ffff; }
-
-/* Right panel */
-.right-panel {
-  flex: 1;
-  display: flex;
-  flex-direction: column;
-  gap: 15px;
-  min-width: 250px;
+  background:#2b2b2b;
+  margin:5px 0;
+  padding:5px 10px;
+  border-left:3px solid red;
+  display:flex;
+  justify-content:space-between;
 }
 
-/* Sticky notes & reminders */
-.sticky-notes, .reminders {
-  background-color: #2b2b2b;
-  border-radius: 10px;
-  padding: 12px;
-  border-left: 4px solid #ff0033;
-  box-shadow: 0 0 12px rgba(255, 0, 51, 0.5);
-}
-.sticky-notes h2, .reminders h2 {
-  margin-top: 0;
-  font-weight: bold;
-  color: #ff0033;
-  text-shadow: 0 0 5px #ff0033;
+/* Icons */
+.icons { display:flex; gap:5px; }
+.icon { cursor:pointer; }
+
+/* Sticky Notes */
+.note {
+  padding:10px;
+  border-radius:8px;
+  margin:5px 0;
+  color:#000;
+  position:relative;
 }
 
-/* Buttons */
-button {
-  margin-top: 5px;
-  padding: 6px 10px;
-  cursor: pointer;
-  border: none;
-  background-color: #2196f3;
-  color: white;
-  border-radius: 5px;
-  transition: 0.3s;
+/* Toolbar */
+.toolbar {
+  display:flex;
+  gap:5px;
+  margin-bottom:5px;
 }
-button:hover { box-shadow: 0 0 10px #00ffff; }
-
-/* Scrollable lists if too many items */
-ul { max-height: 200px; overflow-y: auto; }
+.toolbar button {
+  font-size:12px;
+  padding:3px 6px;
+}
 </style>
 </head>
+
 <body>
-
 <div class="container">
-  <h1>Appointment AI</h1>
-  <div class="main-content">
 
-    <!-- Left Panels -->
-    <div class="left-panel">
-      <!-- Screenshot Panel -->
-      <div class="panel screenshot-panel">
-        <h2>Screenshot</h2>
-        <textarea placeholder="Paste screenshot text here..."></textarea>
-      </div>
+<h1>Appointment AI</h1>
 
-      <!-- Answer Panel -->
-      <div class="panel answer-panel">
-        <h2>Answer</h2>
-        <div class="answer-text" contenteditable="true"></div>
-        <div class="icons">
-          <span class="icon" title="Edit">✏️</span>
-        </div>
-      </div>
+<div class="main">
 
-      <!-- Manual Questions -->
-      <div class="panel question-panel">
-        <h2>Manual Questions</h2>
-        <ul id="question-list"></ul>
-        <input type="text" id="question-input" placeholder="Type your question">
-        <button id="add-question">Add Question</button>
-      </div>
+<!-- LEFT -->
+<div class="left">
 
-      <!-- Knowledge Base -->
-      <div class="panel kb-panel">
-        <h2>Knowledge Base</h2>
-        <ul id="kb-list"></ul>
-        <input type="text" id="kb-question" placeholder="Question">
-        <input type="text" id="kb-answer" placeholder="Answer">
-        <input type="text" id="kb-objection" placeholder="Objection">
-        <button id="add-kb">Add Entry</button>
-      </div>
+<div class="panel">
+<h2>Manual Questions</h2>
+<ul id="questions"></ul>
+<input id="qInput" placeholder="Add question">
+<button onclick="addQuestion()">Add</button>
+</div>
 
-      <!-- Frequently Asked Questions -->
-      <div class="panel faq-panel">
-        <h2>Frequently Asked Questions</h2>
-        <ul id="faq-list"></ul>
-      </div>
-    </div>
+<div class="panel">
+<h2>Frequently Asked Questions</h2>
+<ul id="faq"></ul>
+</div>
 
-    <!-- Right Panels -->
-    <div class="right-panel">
-      <div class="sticky-notes">
-        <h2>Sticky Notes</h2>
-        <ul id="sticky-list"></ul>
-        <textarea id="sticky-input" placeholder="Add sticky note..."></textarea>
-        <button id="add-sticky">Add Note</button>
-      </div>
+</div>
 
-      <div class="reminders">
-        <h2>Reminders</h2>
-        <ul id="reminder-list"></ul>
-        <textarea id="reminder-input" placeholder="Add reminder..."></textarea>
-        <button id="add-reminder">Add Reminder</button>
-      </div>
-    </div>
+<!-- RIGHT -->
+<div class="right">
 
-  </div>
+<div class="panel">
+<h2>Sticky Notes</h2>
+<div id="notes"></div>
+<textarea id="noteInput"></textarea>
+<button onclick="addNote()">Add Note</button>
+</div>
+
+<div class="panel">
+<h2>Reminders</h2>
+<div id="reminders"></div>
+<textarea id="reminderInput"></textarea>
+<button onclick="addReminder()">Add Reminder</button>
+</div>
+
+</div>
+
+</div>
 </div>
 
 <script>
-// Utility to create list items with icons
-function createListItem(text, list) {
-  const li = document.createElement('li');
-  li.textContent = text;
 
-  const editIcon = document.createElement('span');
-  editIcon.textContent = '✏️';
-  editIcon.classList.add('icon');
-  editIcon.onclick = () => {
-    const newText = prompt('Edit text:', li.firstChild.textContent);
-    if(newText) li.firstChild.textContent = newText;
+// COLORS
+const colors = ["#fff176","#ffab91","#80deea","#a5d6a7","#ffcc80","#e1bee7"];
+
+// ---------- QUESTIONS + FAQ ----------
+function addQuestion(){
+  let val = qInput.value;
+  if(!val) return;
+
+  let li = createItem(val, questions, true);
+  qInput.value = "";
+  updateFAQ();
+}
+
+function updateFAQ(){
+  faq.innerHTML = "";
+  [...questions.children].forEach(q=>{
+    createItem(q.firstChild.textContent, faq, false);
+  });
+}
+
+// ---------- CREATE LIST ITEM ----------
+function createItem(text, list, isMain){
+  let li = document.createElement("li");
+
+  let span = document.createElement("span");
+  span.textContent = text;
+
+  let icons = document.createElement("div");
+  icons.className="icons";
+  icons.innerHTML="✏️ 💾 ❌";
+
+  // EDIT
+  icons.children[0].onclick = ()=>{
+    let newText = prompt("Edit:", span.textContent);
+    if(newText) span.textContent = newText;
+    if(isMain) updateFAQ();
   };
 
-  const saveIcon = document.createElement('span');
-  saveIcon.textContent = '💾';
-  saveIcon.classList.add('icon');
-  saveIcon.onclick = () => alert('Saved: ' + li.firstChild.textContent);
+  // SAVE
+  icons.children[1].onclick = ()=>{
+    alert("Saved: "+span.textContent);
+  };
 
-  const deleteIcon = document.createElement('span');
-  deleteIcon.textContent = '❌';
-  deleteIcon.classList.add('icon');
-  deleteIcon.onclick = () => li.remove();
+  // DELETE
+  icons.children[2].onclick = ()=>{
+    li.remove();
+    if(isMain) updateFAQ();
+  };
 
-  li.appendChild(editIcon);
-  li.appendChild(saveIcon);
-  li.appendChild(deleteIcon);
-
+  li.appendChild(span);
+  li.appendChild(icons);
   list.appendChild(li);
 }
 
-// Add manual question
-document.getElementById('add-question').onclick = () => {
-  const input = document.getElementById('question-input');
-  if(input.value.trim() !== '') {
-    createListItem(input.value, document.getElementById('question-list'));
-    input.value = '';
-  }
-};
+// ---------- NOTES WITH TOOLBAR ----------
+function createNote(text, container){
+  let div = document.createElement("div");
+  div.className="note";
+  div.style.background = colors[Math.floor(Math.random()*colors.length)];
 
-// Add Knowledge Base entry
-document.getElementById('add-kb').onclick = () => {
-  const q = document.getElementById('kb-question').value;
-  const a = document.getElementById('kb-answer').value;
-  const o = document.getElementById('kb-objection').value;
-  if(q.trim() || a.trim() || o.trim()) {
-    createListItem(`Q: ${q} | A: ${a} | O: ${o}`, document.getElementById('kb-list'));
-    document.getElementById('kb-question').value = '';
-    document.getElementById('kb-answer').value = '';
-    document.getElementById('kb-objection').value = '';
-  }
-};
+  // TEXT AREA
+  let content = document.createElement("div");
+  content.contentEditable = true;
+  content.innerText = text;
 
-// Add Sticky Note
-document.getElementById('add-sticky').onclick = () => {
-  const input = document.getElementById('sticky-input');
-  if(input.value.trim() !== '') {
-    createListItem(input.value, document.getElementById('sticky-list'));
-    input.value = '';
-  }
-};
+  // TOOLBAR
+  let toolbar = document.createElement("div");
+  toolbar.className="toolbar";
 
-// Add Reminder
-document.getElementById('add-reminder').onclick = () => {
-  const input = document.getElementById('reminder-input');
-  if(input.value.trim() !== '') {
-    createListItem(input.value, document.getElementById('reminder-list'));
-    input.value = '';
+  toolbar.innerHTML = `
+    <button onclick="document.execCommand('bold')">B</button>
+    <button onclick="document.execCommand('hiliteColor',false,'yellow')">🖍</button>
+    <button onclick="changeFontSize(this,1)">A+</button>
+    <button onclick="changeFontSize(this,-1)">A-</button>
+    <button onclick="changeColor(this)">🎨</button>
+  `;
+
+  // ICONS
+  let icons = document.createElement("div");
+  icons.className="icons";
+  icons.style.position="absolute";
+  icons.style.right="5px";
+  icons.innerHTML="✏️ 💾 ❌";
+
+  icons.children[0].onclick = ()=> content.focus();
+  icons.children[1].onclick = ()=> alert("Saved!");
+  icons.children[2].onclick = ()=> div.remove();
+
+  div.appendChild(toolbar);
+  div.appendChild(content);
+  div.appendChild(icons);
+
+  container.appendChild(div);
+}
+
+// FONT SIZE
+function changeFontSize(btn, dir){
+  let el = btn.parentElement.nextSibling;
+  let size = window.getComputedStyle(el).fontSize;
+  size = parseFloat(size);
+  el.style.fontSize = (size + dir*2) + "px";
+}
+
+// CHANGE COLOR
+function changeColor(btn){
+  let note = btn.closest(".note");
+  note.style.background = colors[Math.floor(Math.random()*colors.length)];
+}
+
+// ADD NOTE
+function addNote(){
+  if(noteInput.value){
+    createNote(noteInput.value, notes);
+    noteInput.value="";
   }
-};
+}
+
+// ADD REMINDER
+function addReminder(){
+  if(reminderInput.value){
+    createNote(reminderInput.value, reminders);
+    reminderInput.value="";
+  }
+}
+
 </script>
 </body>
 </html>
