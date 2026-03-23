@@ -1,112 +1,98 @@
 <!DOCTYPE html>
-<html>
+<html lang="en">
 <head>
 <meta charset="UTF-8">
 <title>Appointment AI</title>
 
 <style>
-body{
+body {
   margin:0;
-  font-family:Segoe UI;
-  background: linear-gradient(135deg,#050a1f,#000,#1a0a0a);
-  color:white;
+  font-family: 'Segoe UI', sans-serif;
+  background: radial-gradient(circle at top, #0a0f1f, #000);
+  color: white;
 }
 
-/* HEADER */
-h1{
+h1 {
   text-align:center;
-  color:#ff2a2a;
-  text-shadow:0 0 20px red,0 0 40px blue;
-  margin:15px 0;
+  color:#00d4ff;
+  text-shadow:0 0 10px #00d4ff;
 }
 
-/* LAYOUT */
-.container{
+.container {
   display:flex;
-  gap:20px;
-  padding:20px;
+  height:100vh;
 }
 
-.left{flex:2;}
-.right{flex:1;}
+/* LEFT PANEL */
+.left {
+  width:70%;
+  padding:15px;
+  overflow:auto;
+}
+
+/* RIGHT PANEL */
+.right {
+  width:30%;
+  background:#111;
+  padding:10px;
+  overflow:auto;
+  border-left:2px solid #00d4ff;
+}
 
 /* PANELS */
-.panel{
-  background:rgba(15,15,25,0.9);
-  padding:15px;
-  border-radius:12px;
-  margin-bottom:20px;
-  box-shadow:0 0 15px rgba(0,150,255,0.3);
-}
-
-/* INPUTS */
-input{
-  width:100%;
+.panel {
+  background:rgba(255,255,255,0.05);
+  margin-bottom:15px;
   padding:10px;
-  margin:5px 0;
-  background:#111;
-  color:white;
-  border:1px solid #333;
-  border-radius:5px;
+  border-radius:10px;
+  box-shadow:0 0 10px rgba(0,212,255,0.2);
 }
 
 /* BUTTON */
-button{
-  background:#111;
-  border:1px solid red;
-  color:white;
-  padding:6px;
+button {
+  background:#00d4ff;
+  border:none;
+  padding:5px 10px;
+  margin-top:5px;
   cursor:pointer;
+  border-radius:5px;
+}
+
+/* EDITOR */
+.editor {
+  min-height:50px;
+  padding:5px;
+  background:#000;
+  border:1px solid #333;
   margin-top:5px;
 }
 
-/* QA ITEMS */
-.item{
-  display:flex;
-  justify-content:space-between;
-  background:#111;
-  padding:8px;
-  margin-top:8px;
-  border-radius:6px;
+/* TOOLBAR */
+.toolbar button {
+  background:#222;
+  color:white;
+  margin-right:5px;
 }
 
-.icons span{
-  margin-left:10px;
-  cursor:pointer;
-}
-
-/* ANSWER */
-#answer{
+/* CARD */
+.card {
   background:#111;
   padding:10px;
-  border-radius:6px;
-  min-height:50px;
-}
-
-/* NOTES */
-.note{
-  background:#ffd54f;
-  color:black;
-  padding:10px;
-  border-radius:10px;
   margin-top:10px;
+  border-left:3px solid #00d4ff;
+  position:relative;
 }
 
-.note-header{
-  display:flex;
-  justify-content:space-between;
-  font-weight:bold;
+/* ICONS RIGHT */
+.icons {
+  position:absolute;
+  right:5px;
+  top:5px;
+}
+
+.icons span {
   cursor:pointer;
-}
-
-.hidden{display:none;}
-
-/* KNOWLEDGE BASE */
-.kb{
-  font-size:22px;
-  color:#4fc3f7;
-  text-shadow:0 0 10px cyan,0 0 20px blue;
-  margin:20px 0 10px;
+  margin-left:8px;
 }
 </style>
 </head>
@@ -121,31 +107,38 @@ button{
 <div class="left">
 
 <div class="panel">
-<h3>Screenshot Panel</h3>
-<button onclick="toggle('ss')">Toggle</button>
-<div id="ss">
-<input type="file" id="imgInput">
-<div id="imgs"></div>
-</div>
+<h3>Screenshot Input</h3>
+<textarea id="screenshotInput" style="width:100%;height:80px;"></textarea>
+<button onclick="processText()">Analyze</button>
 </div>
 
 <div class="panel">
 <h3>Answer</h3>
-<div id="answer"></div>
+<div id="answerOutput"></div>
 </div>
 
 <div class="panel">
 <h3>Manual Add (Q / Objection / Answer)</h3>
-<input id="q" placeholder="Question / Objection">
-<input id="a" placeholder="Answer">
-<button onclick="addQA()">Add</button>
-<div id="list"></div>
+
+<div class="toolbar">
+<button onclick="format('bold')">B</button>
+<button onclick="format('italic')">I</button>
+<button onclick="format('underline')">U</button>
 </div>
 
-<div class="kb">Knowledge Base</div>
+<div id="q" class="editor" contenteditable="true">Question</div>
+<div id="o" class="editor" contenteditable="true">Objection</div>
+<div id="a" class="editor" contenteditable="true">Answer</div>
 
-<div class="panel">
-<h3>Frequently Asked Questions</h3>
+<button onclick="addEntry()">Add</button>
+
+<div id="entries"></div>
+</div>
+
+<h2>Knowledge Base</h2>
+
+<div class="panel" id="faqPanel">
+<h3>Frequently Asked</h3>
 <div id="faq"></div>
 </div>
 
@@ -155,8 +148,15 @@ button{
 <div class="right">
 
 <div class="panel">
-<h3>Sticky Notes / Reminders</h3>
-<input id="noteInput" placeholder="Type and press ENTER">
+<h3>Notes / Reminders</h3>
+<div class="toolbar">
+<button onclick="format('bold')">B</button>
+<button onclick="format('italic')">I</button>
+</div>
+
+<div id="noteInput" class="editor" contenteditable="true"></div>
+<button onclick="addNote()">Add Note</button>
+
 <div id="notes"></div>
 </div>
 
@@ -166,141 +166,82 @@ button{
 
 <script>
 
-let data={qa:[],notes:[]};
+let db = [];
 
-/* QA */
-function addQA(){
-  let q=document.getElementById('q').value;
-  let a=document.getElementById('a').value;
-  if(!q||!a)return;
-
-  data.qa.push({q,a});
-  renderQA();
-  renderFAQ();
-
-  document.getElementById('q').value="";
-  document.getElementById('a').value="";
+function format(cmd){
+ document.execCommand(cmd,false,null);
 }
 
-function renderQA(){
-  let el=document.getElementById('list');
-  el.innerHTML="";
-  data.qa.forEach((x,i)=>{
-    el.innerHTML+=`
-    <div class="item" onclick="show(${i})">
-      <span contenteditable>${x.q} → ${x.a}</span>
-      <div class="icons">
-        <span onclick="event.stopPropagation();edit(this)">✏️</span>
-        <span onclick="event.stopPropagation();save(${i},this)">💾</span>
-        <span onclick="event.stopPropagation();del(${i})">🗑</span>
-      </div>
-    </div>`;
-  });
+function addEntry(){
+ let q = document.getElementById('q').innerHTML;
+ let o = document.getElementById('o').innerHTML;
+ let a = document.getElementById('a').innerHTML;
+
+ let entry = {q,o,a};
+ db.push(entry);
+ renderEntries();
+ autoFAQ(entry);
+
+ document.getElementById('q').innerHTML='';
+ document.getElementById('o').innerHTML='';
+ document.getElementById('a').innerHTML='';
 }
 
-function renderFAQ(){
-  let el=document.getElementById('faq');
-  el.innerHTML="";
-  data.qa.forEach((x,i)=>{
-    el.innerHTML+=`
-    <div class="item">
-      <span contenteditable>${x.q}</span>
-      <div class="icons">
-        <span onclick="edit(this)">✏️</span>
-        <span onclick="save(${i},this)">💾</span>
-        <span onclick="del(${i})">🗑</span>
-      </div>
-    </div>`;
-  });
+function renderEntries(){
+ let html='';
+ db.forEach((e,i)=>{
+  html+=`
+  <div class="card">
+  <div class="icons">
+  <span onclick="deleteEntry(${i})">🗑</span>
+  </div>
+  <b>Q:</b>${e.q}<br>
+  <b>O:</b>${e.o}<br>
+  <b>A:</b>${e.a}
+  </div>`;
+ });
+ document.getElementById('entries').innerHTML=html;
 }
 
-function show(i){
-  document.getElementById('answer').innerText=data.qa[i].a;
+function deleteEntry(i){
+ db.splice(i,1);
+ renderEntries();
 }
 
-function edit(e){
-  e.parentElement.parentElement.querySelector("span").focus();
+function processText(){
+ let input = document.getElementById('screenshotInput').value.toLowerCase();
+
+ let found = db.find(e=> input.includes(e.q.toLowerCase()));
+
+ if(found){
+  document.getElementById('answerOutput').innerHTML=found.a;
+ }else{
+  document.getElementById('answerOutput').innerHTML="No match found";
+ }
 }
 
-function save(i,e){
-  let txt=e.parentElement.parentElement.querySelector("span").innerText;
-  let parts=txt.split("→");
-  if(parts.length>=2){
-    data.qa[i]={q:parts[0].trim(),a:parts[1].trim()};
-  }
-  renderQA();
-  renderFAQ();
-}
-
-function del(i){
-  data.qa.splice(i,1);
-  renderQA();
-  renderFAQ();
+function autoFAQ(entry){
+ let faq = document.getElementById('faq');
+ faq.innerHTML += `<div class="card">${entry.q}<br>${entry.a}</div>`;
 }
 
 /* NOTES */
-document.getElementById("noteInput").addEventListener("keypress",function(e){
-  if(e.key==="Enter"){
-    let val=this.value.trim();
-    if(!val)return;
-    data.notes.push(val);
-    this.value="";
-    renderNotes();
-  }
-});
 
-function renderNotes(){
-  let el=document.getElementById('notes');
-  el.innerHTML="";
-  data.notes.forEach((n,i)=>{
-    el.innerHTML+=`
-    <div class="note">
-      <div class="note-header">
-        <span onclick="toggleNote(this)">Note</span>
-        <div class="icons">
-          <span onclick="editNote(this)">✏️</span>
-          <span onclick="saveNote(${i},this)">💾</span>
-          <span onclick="delNote(${i})">🗑</span>
-        </div>
-      </div>
-      <div contenteditable>${n}</div>
-    </div>`;
-  });
+function addNote(){
+ let text = document.getElementById('noteInput').innerHTML;
+
+ let note = document.createElement('div');
+ note.className='card';
+ note.innerHTML = `
+ <div class="icons">
+ <span onclick="this.parentElement.parentElement.remove()">🗑</span>
+ </div>
+ ${text}
+ `;
+
+ document.getElementById('notes').appendChild(note);
+ document.getElementById('noteInput').innerHTML='';
 }
-
-function toggleNote(e){
-  e.parentElement.parentElement.querySelector("div[contenteditable]").classList.toggle("hidden");
-}
-
-function editNote(e){
-  e.parentElement.parentElement.nextElementSibling.focus();
-}
-
-function saveNote(i,e){
-  let txt=e.parentElement.parentElement.nextElementSibling.innerText;
-  data.notes[i]=txt;
-}
-
-function delNote(i){
-  data.notes.splice(i,1);
-  renderNotes();
-}
-
-/* SCREENSHOT */
-function toggle(id){
-  document.getElementById(id).classList.toggle("hidden");
-}
-
-document.getElementById("imgInput").addEventListener("change",e=>{
-  let file=e.target.files[0];
-  if(!file)return;
-  let url=URL.createObjectURL(file);
-  let img=document.createElement("img");
-  img.src=url;
-  img.style.width="100%";
-  img.style.marginTop="10px";
-  document.getElementById("imgs").appendChild(img);
-});
 
 </script>
 
