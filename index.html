@@ -2,251 +2,275 @@
 <html lang="en">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Appointment AI - Futuristic</title>
+<title>Appointment AI</title>
+
+<!-- ICONS -->
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
 
 <style>
-body {
-  margin:0;
-  font-family:Segoe UI;
-  background:#0b0b0b;
-  color:#e0e0e0;
-}
-.container { padding:20px; }
-h1 {
-  text-align:center;
-  color:#ff0033;
-  text-shadow:0 0 10px #ff0033;
+body{
+    margin:0;
+    font-family: Arial, sans-serif;
+    background:#0a0a0a;
+    color:#fff;
 }
 
-.main { display:flex; gap:15px; }
-
-/* Panels */
-.panel {
-  background:#1e1e1e;
-  padding:10px;
-  border-radius:10px;
-  margin-bottom:10px;
-  box-shadow:0 0 10px rgba(0,255,255,0.3);
-}
-.panel h2 {
-  color:#00ffff;
+/* TITLE */
+h1{
+    text-align:center;
+    padding:15px;
+    color:#00c3ff;
 }
 
-/* Layout */
-.left { flex:3; }
-.right { flex:1; }
-
-/* Lists */
-ul { list-style:none; padding:0; }
-li {
-  background:#2b2b2b;
-  margin:5px 0;
-  padding:5px 10px;
-  border-left:3px solid red;
-  display:flex;
-  justify-content:space-between;
+/* LAYOUT */
+.container{
+    display:flex;
 }
 
-/* Icons */
-.icons { display:flex; gap:5px; }
-.icon { cursor:pointer; }
-
-/* Sticky Notes */
-.note {
-  padding:10px;
-  border-radius:8px;
-  margin:5px 0;
-  color:#000;
-  position:relative;
+.left{
+    width:75%;
+    padding:15px;
 }
 
-/* Toolbar */
-.toolbar {
-  display:flex;
-  gap:5px;
-  margin-bottom:5px;
+.right{
+    width:25%;
+    padding:15px;
+    border-left:1px solid #333;
 }
-.toolbar button {
-  font-size:12px;
-  padding:3px 6px;
+
+/* PANELS */
+.panel{
+    background:#1a1a1a;
+    padding:15px;
+    margin-bottom:20px;
+    border-radius:10px;
+    border:1px solid #333;
+}
+
+/* INPUT */
+input, textarea{
+    width:100%;
+    padding:10px;
+    margin-top:10px;
+    background:#111;
+    border:1px solid #333;
+    color:#fff;
+}
+
+/* BUTTON ICONS */
+.icons{
+    float:right;
+}
+
+.icons i{
+    margin-left:10px;
+    cursor:pointer;
+    color:#00c3ff;
+}
+
+.icons i:hover{
+    color:#ff3b3b;
+}
+
+/* ANSWER BOX */
+.answer-box{
+    background:#111;
+    padding:15px;
+    border-left:4px solid red;
+}
+
+/* STICKY NOTES */
+.note{
+    padding:15px;
+    margin-bottom:10px;
+    border-radius:10px;
+    color:#000;
+    font-weight:bold;
+}
+
+.yellow{background:#fff176;}
+.blue{background:#81d4fa;}
+.green{background:#a5d6a7;}
+.pink{background:#f48fb1;}
+
+.footer-space{
+    height:100px;
 }
 </style>
 </head>
 
 <body>
-<div class="container">
 
 <h1>Appointment AI</h1>
 
-<div class="main">
+<div class="container">
 
-<!-- LEFT -->
+<!-- LEFT SIDE -->
 <div class="left">
 
+<!-- SCREENSHOT PANEL -->
 <div class="panel">
-<h2>Manual Questions</h2>
-<ul id="questions"></ul>
-<input id="qInput" placeholder="Add question">
-<button onclick="addQuestion()">Add</button>
+<h3>Screenshot</h3>
+<input type="file" id="imgInput">
 </div>
 
+<!-- ANSWERS -->
 <div class="panel">
-<h2>Frequently Asked Questions</h2>
-<ul id="faq"></ul>
+<h3>Answers</h3>
+<div class="answer-box" id="answerBox">
+Answers will appear here...
+</div>
+</div>
+
+<!-- MANUAL QUESTIONS -->
+<div class="panel">
+<h3>Add Question / Objection</h3>
+
+<input id="questionInput" placeholder="Type question...">
+<textarea id="answerInput" placeholder="Type answer..."></textarea>
+
+<div class="icons">
+<i class="fas fa-save" onclick="addQA()"></i>
+<i class="fas fa-eraser" onclick="clearInputs()"></i>
 </div>
 
 </div>
 
-<!-- RIGHT -->
+<!-- KNOWLEDGE BASE -->
+<div class="panel">
+<h3><b>Knowledge Base</b></h3>
+<div id="knowledgeList"></div>
+</div>
+
+<!-- FAQ -->
+<div class="panel">
+<h3>Frequently Asked</h3>
+<div id="faqList"></div>
+</div>
+
+<div class="footer-space"></div>
+
+</div>
+
+<!-- RIGHT SIDE -->
 <div class="right">
 
+<!-- REMINDERS -->
 <div class="panel">
-<h2>Sticky Notes</h2>
-<div id="notes"></div>
-<textarea id="noteInput"></textarea>
-<button onclick="addNote()">Add Note</button>
+<h3>Reminders</h3>
+<textarea placeholder="Write reminders..."></textarea>
 </div>
 
+<!-- STICKY NOTES -->
 <div class="panel">
-<h2>Reminders</h2>
-<div id="reminders"></div>
-<textarea id="reminderInput"></textarea>
-<button onclick="addReminder()">Add Reminder</button>
-</div>
+<h3>Sticky Notes</h3>
+
+<div class="note yellow" contenteditable="true">Note 1</div>
+<div class="note blue" contenteditable="true">Note 2</div>
+<div class="note green" contenteditable="true">Note 3</div>
+<div class="note pink" contenteditable="true">Note 4</div>
 
 </div>
 
 </div>
+
 </div>
 
 <script>
 
-// COLORS
-const colors = ["#fff176","#ffab91","#80deea","#a5d6a7","#ffcc80","#e1bee7"];
+/* STORAGE */
+let knowledge = [];
+let faq = [];
 
-// ---------- QUESTIONS + FAQ ----------
-function addQuestion(){
-  let val = qInput.value;
-  if(!val) return;
+/* ADD QUESTION */
+function addQA(){
+    let q = document.getElementById("questionInput").value;
+    let a = document.getElementById("answerInput").value;
 
-  let li = createItem(val, questions, true);
-  qInput.value = "";
-  updateFAQ();
+    if(q === "" || a === "") return;
+
+    knowledge.push({q,a});
+    renderKnowledge();
+
+    autoDetect(q);
+
+    clearInputs();
 }
 
-function updateFAQ(){
-  faq.innerHTML = "";
-  [...questions.children].forEach(q=>{
-    createItem(q.firstChild.textContent, faq, false);
-  });
+/* CLEAR INPUT */
+function clearInputs(){
+    document.getElementById("questionInput").value="";
+    document.getElementById("answerInput").value="";
 }
 
-// ---------- CREATE LIST ITEM ----------
-function createItem(text, list, isMain){
-  let li = document.createElement("li");
+/* RENDER KNOWLEDGE */
+function renderKnowledge(){
+    let list = document.getElementById("knowledgeList");
+    list.innerHTML="";
 
-  let span = document.createElement("span");
-  span.textContent = text;
-
-  let icons = document.createElement("div");
-  icons.className="icons";
-  icons.innerHTML="✏️ 💾 ❌";
-
-  // EDIT
-  icons.children[0].onclick = ()=>{
-    let newText = prompt("Edit:", span.textContent);
-    if(newText) span.textContent = newText;
-    if(isMain) updateFAQ();
-  };
-
-  // SAVE
-  icons.children[1].onclick = ()=>{
-    alert("Saved: "+span.textContent);
-  };
-
-  // DELETE
-  icons.children[2].onclick = ()=>{
-    li.remove();
-    if(isMain) updateFAQ();
-  };
-
-  li.appendChild(span);
-  li.appendChild(icons);
-  list.appendChild(li);
+    knowledge.forEach((item,index)=>{
+        list.innerHTML += `
+        <div class="panel">
+            <b>${item.q}</b><br>${item.a}
+            <div class="icons">
+                <i class="fas fa-pen" onclick="editQA(${index})"></i>
+                <i class="fas fa-trash" onclick="deleteQA(${index})"></i>
+            </div>
+        </div>`;
+    });
 }
 
-// ---------- NOTES WITH TOOLBAR ----------
-function createNote(text, container){
-  let div = document.createElement("div");
-  div.className="note";
-  div.style.background = colors[Math.floor(Math.random()*colors.length)];
-
-  // TEXT AREA
-  let content = document.createElement("div");
-  content.contentEditable = true;
-  content.innerText = text;
-
-  // TOOLBAR
-  let toolbar = document.createElement("div");
-  toolbar.className="toolbar";
-
-  toolbar.innerHTML = `
-    <button onclick="document.execCommand('bold')">B</button>
-    <button onclick="document.execCommand('hiliteColor',false,'yellow')">🖍</button>
-    <button onclick="changeFontSize(this,1)">A+</button>
-    <button onclick="changeFontSize(this,-1)">A-</button>
-    <button onclick="changeColor(this)">🎨</button>
-  `;
-
-  // ICONS
-  let icons = document.createElement("div");
-  icons.className="icons";
-  icons.style.position="absolute";
-  icons.style.right="5px";
-  icons.innerHTML="✏️ 💾 ❌";
-
-  icons.children[0].onclick = ()=> content.focus();
-  icons.children[1].onclick = ()=> alert("Saved!");
-  icons.children[2].onclick = ()=> div.remove();
-
-  div.appendChild(toolbar);
-  div.appendChild(content);
-  div.appendChild(icons);
-
-  container.appendChild(div);
+/* DELETE */
+function deleteQA(i){
+    knowledge.splice(i,1);
+    renderKnowledge();
 }
 
-// FONT SIZE
-function changeFontSize(btn, dir){
-  let el = btn.parentElement.nextSibling;
-  let size = window.getComputedStyle(el).fontSize;
-  size = parseFloat(size);
-  el.style.fontSize = (size + dir*2) + "px";
+/* EDIT */
+function editQA(i){
+    document.getElementById("questionInput").value = knowledge[i].q;
+    document.getElementById("answerInput").value = knowledge[i].a;
 }
 
-// CHANGE COLOR
-function changeColor(btn){
-  let note = btn.closest(".note");
-  note.style.background = colors[Math.floor(Math.random()*colors.length)];
+/* AUTO ANSWER DETECT */
+function autoDetect(input){
+    let answerBox = document.getElementById("answerBox");
+
+    let found = knowledge.find(item => 
+        input.toLowerCase().includes(item.q.toLowerCase())
+    );
+
+    if(found){
+        answerBox.innerHTML = found.a;
+
+        faq.push(found);
+        renderFAQ();
+    }
 }
 
-// ADD NOTE
-function addNote(){
-  if(noteInput.value){
-    createNote(noteInput.value, notes);
-    noteInput.value="";
-  }
+/* FAQ */
+function renderFAQ(){
+    let list = document.getElementById("faqList");
+    list.innerHTML="";
+
+    faq.forEach((item,index)=>{
+        list.innerHTML += `
+        <div class="panel">
+            <b>${item.q}</b><br>${item.a}
+            <div class="icons">
+                <i class="fas fa-trash" onclick="removeFAQ(${index})"></i>
+            </div>
+        </div>`;
+    });
 }
 
-// ADD REMINDER
-function addReminder(){
-  if(reminderInput.value){
-    createNote(reminderInput.value, reminders);
-    reminderInput.value="";
-  }
+/* REMOVE FAQ */
+function removeFAQ(i){
+    faq.splice(i,1);
+    renderFAQ();
 }
 
 </script>
+
 </body>
 </html>
