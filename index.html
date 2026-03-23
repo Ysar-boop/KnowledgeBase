@@ -3,98 +3,112 @@
 <head>
 <meta charset="UTF-8">
 <title>Appointment AI</title>
-
-<!-- ICONS -->
-<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
-
 <style>
-body{
-    margin:0;
-    font-family: Arial, sans-serif;
-    background:#0a0a0a;
-    color:#fff;
+body {
+  margin:0;
+  font-family:Segoe UI;
+  background: radial-gradient(circle at top, #0a0a0a, #000);
+  color:white;
 }
 
-/* TITLE */
+/* HEADER */
 h1{
-    text-align:center;
-    padding:15px;
-    color:#00c3ff;
+  text-align:center;
+  color:#ff2a2a;
+  text-shadow:0 0 15px red;
+  margin:15px;
 }
 
 /* LAYOUT */
 .container{
-    display:flex;
-}
-
-.left{
-    width:75%;
-    padding:15px;
-}
-
-.right{
-    width:25%;
-    padding:15px;
-    border-left:1px solid #333;
+  display:flex;
+  gap:15px;
+  padding:15px;
 }
 
 /* PANELS */
 .panel{
-    background:#1a1a1a;
-    padding:15px;
-    margin-bottom:20px;
-    border-radius:10px;
-    border:1px solid #333;
+  background:rgba(20,20,20,0.85);
+  border:1px solid rgba(255,0,0,0.3);
+  box-shadow:0 0 10px rgba(0,150,255,0.3);
+  border-radius:10px;
+  padding:10px;
+  margin-bottom:15px;
+}
+
+/* LEFT */
+.left{
+  flex:2;
+}
+
+/* RIGHT */
+.right{
+  flex:1;
+  display:flex;
+  flex-direction:column;
+  gap:15px;
+  max-height:90vh;
+  overflow:auto;
 }
 
 /* INPUT */
 input, textarea{
-    width:100%;
-    padding:10px;
-    margin-top:10px;
-    background:#111;
-    border:1px solid #333;
-    color:#fff;
+  width:100%;
+  margin:5px 0;
+  padding:8px;
+  background:#111;
+  color:white;
+  border:1px solid #333;
 }
 
-/* BUTTON ICONS */
+/* BUTTON */
+button{
+  background:#111;
+  border:1px solid red;
+  color:white;
+  padding:6px 10px;
+  cursor:pointer;
+}
+
+/* LIST ITEMS */
+.item{
+  display:flex;
+  justify-content:space-between;
+  align-items:center;
+  background:#111;
+  padding:6px;
+  margin-top:5px;
+}
+
 .icons{
-    float:right;
+  display:flex;
+  gap:8px;
+  cursor:pointer;
 }
 
-.icons i{
-    margin-left:10px;
-    cursor:pointer;
-    color:#00c3ff;
+/* SCREENSHOT */
+img{
+  max-width:100%;
+  border-radius:5px;
 }
 
-.icons i:hover{
-    color:#ff3b3b;
-}
-
-/* ANSWER BOX */
-.answer-box{
-    background:#111;
-    padding:15px;
-    border-left:4px solid red;
-}
-
-/* STICKY NOTES */
+/* STICKY */
 .note{
-    padding:15px;
-    margin-bottom:10px;
-    border-radius:10px;
-    color:#000;
-    font-weight:bold;
+  padding:10px;
+  border-radius:8px;
+  margin-top:10px;
+  color:black;
 }
 
-.yellow{background:#fff176;}
-.blue{background:#81d4fa;}
-.green{background:#a5d6a7;}
-.pink{background:#f48fb1;}
+.note-header{
+  display:flex;
+  justify-content:space-between;
+  cursor:pointer;
+  font-weight:bold;
+}
 
-.footer-space{
-    height:100px;
+.hidden{
+  display:none;
 }
 </style>
 </head>
@@ -105,71 +119,55 @@ input, textarea{
 
 <div class="container">
 
-<!-- LEFT SIDE -->
+<!-- LEFT -->
 <div class="left">
 
-<!-- SCREENSHOT PANEL -->
 <div class="panel">
 <h3>Screenshot</h3>
-<input type="file" id="imgInput">
+<input type="file" accept="image/*" onchange="loadImage(event)">
+<img id="preview">
 </div>
 
-<!-- ANSWERS -->
 <div class="panel">
-<h3>Answers</h3>
-<div class="answer-box" id="answerBox">
-Answers will appear here...
-</div>
+<h3>Answer</h3>
+<div id="answerBox"></div>
 </div>
 
-<!-- MANUAL QUESTIONS -->
 <div class="panel">
-<h3>Add Question / Objection</h3>
-
-<input id="questionInput" placeholder="Type question...">
-<textarea id="answerInput" placeholder="Type answer..."></textarea>
-
-<div class="icons">
-<i class="fas fa-save" onclick="addQA()"></i>
-<i class="fas fa-eraser" onclick="clearInputs()"></i>
+<h3>Manual Add (Q / Objection / Answer)</h3>
+<input id="q" placeholder="Question / Objection">
+<input id="a" placeholder="Answer">
+<button onclick="addQA()">Add</button>
+<div id="qaList"></div>
 </div>
 
-</div>
-
-<!-- KNOWLEDGE BASE -->
 <div class="panel">
 <h3><b>Knowledge Base</b></h3>
-<div id="knowledgeList"></div>
+<div id="kbList"></div>
 </div>
 
-<!-- FAQ -->
 <div class="panel">
 <h3>Frequently Asked</h3>
 <div id="faqList"></div>
 </div>
 
-<div class="footer-space"></div>
-
 </div>
 
-<!-- RIGHT SIDE -->
+<!-- RIGHT -->
 <div class="right">
 
-<!-- REMINDERS -->
-<div class="panel">
-<h3>Reminders</h3>
-<textarea placeholder="Write reminders..."></textarea>
-</div>
-
-<!-- STICKY NOTES -->
 <div class="panel">
 <h3>Sticky Notes</h3>
+<input id="noteInput" placeholder="Write note">
+<button onclick="addNote()">Add</button>
+<div id="notes"></div>
+</div>
 
-<div class="note yellow" contenteditable="true">Note 1</div>
-<div class="note blue" contenteditable="true">Note 2</div>
-<div class="note green" contenteditable="true">Note 3</div>
-<div class="note pink" contenteditable="true">Note 4</div>
-
+<div class="panel">
+<h3>Reminders</h3>
+<input id="remInput" placeholder="Write reminder">
+<button onclick="addReminder()">Add</button>
+<div id="reminders"></div>
 </div>
 
 </div>
@@ -178,96 +176,153 @@ Answers will appear here...
 
 <script>
 
-/* STORAGE */
-let knowledge = [];
-let faq = [];
+let data = [];
 
-/* ADD QUESTION */
+/* SCREENSHOT */
+function loadImage(e){
+  let img = document.getElementById('preview');
+  img.src = URL.createObjectURL(e.target.files[0]);
+}
+
+/* ADD QA */
 function addQA(){
-    let q = document.getElementById("questionInput").value;
-    let a = document.getElementById("answerInput").value;
+  let q = document.getElementById('q').value;
+  let a = document.getElementById('a').value;
 
-    if(q === "" || a === "") return;
+  if(!q || !a) return;
 
-    knowledge.push({q,a});
-    renderKnowledge();
+  let obj = {q,a};
+  data.push(obj);
 
-    autoDetect(q);
+  renderQA();
+  renderKB();
+  renderFAQ();
 
-    clearInputs();
+  document.getElementById('q').value="";
+  document.getElementById('a').value="";
 }
 
-/* CLEAR INPUT */
-function clearInputs(){
-    document.getElementById("questionInput").value="";
-    document.getElementById("answerInput").value="";
+/* RENDER QA */
+function renderQA(){
+  let list = document.getElementById('qaList');
+  list.innerHTML="";
+
+  data.forEach((item,i)=>{
+    list.innerHTML += createItem(item.q + " → " + item.a, i);
+  });
 }
 
-/* RENDER KNOWLEDGE */
-function renderKnowledge(){
-    let list = document.getElementById("knowledgeList");
-    list.innerHTML="";
+/* KNOWLEDGE BASE */
+function renderKB(){
+  let kb = document.getElementById('kbList');
+  kb.innerHTML="";
 
-    knowledge.forEach((item,index)=>{
-        list.innerHTML += `
-        <div class="panel">
-            <b>${item.q}</b><br>${item.a}
-            <div class="icons">
-                <i class="fas fa-pen" onclick="editQA(${index})"></i>
-                <i class="fas fa-trash" onclick="deleteQA(${index})"></i>
-            </div>
-        </div>`;
-    });
+  data.forEach((item,i)=>{
+    kb.innerHTML += createItem(item.q + " → " + item.a, i);
+  });
 }
 
-/* DELETE */
-function deleteQA(i){
-    knowledge.splice(i,1);
-    renderKnowledge();
-}
-
-/* EDIT */
-function editQA(i){
-    document.getElementById("questionInput").value = knowledge[i].q;
-    document.getElementById("answerInput").value = knowledge[i].a;
-}
-
-/* AUTO ANSWER DETECT */
-function autoDetect(input){
-    let answerBox = document.getElementById("answerBox");
-
-    let found = knowledge.find(item => 
-        input.toLowerCase().includes(item.q.toLowerCase())
-    );
-
-    if(found){
-        answerBox.innerHTML = found.a;
-
-        faq.push(found);
-        renderFAQ();
-    }
-}
-
-/* FAQ */
+/* FAQ AUTO */
 function renderFAQ(){
-    let list = document.getElementById("faqList");
-    list.innerHTML="";
+  let faq = document.getElementById('faqList');
+  faq.innerHTML="";
 
-    faq.forEach((item,index)=>{
-        list.innerHTML += `
-        <div class="panel">
-            <b>${item.q}</b><br>${item.a}
-            <div class="icons">
-                <i class="fas fa-trash" onclick="removeFAQ(${index})"></i>
-            </div>
-        </div>`;
-    });
+  data.forEach((item,i)=>{
+    faq.innerHTML += createItem(item.q, i);
+  });
 }
 
-/* REMOVE FAQ */
-function removeFAQ(i){
-    faq.splice(i,1);
-    renderFAQ();
+/* ITEM TEMPLATE */
+function createItem(text, index){
+  return `
+  <div class="item">
+    <span contenteditable="true">${text}</span>
+    <div class="icons">
+      <span onclick="editItem(this)">✏️</span>
+      <span onclick="saveItem(${index}, this)">💾</span>
+      <span onclick="deleteItem(${index})">🗑</span>
+    </div>
+  </div>`;
+}
+
+/* ICON FUNCTIONS */
+function editItem(el){
+  el.parentElement.parentElement.querySelector("span").focus();
+}
+
+function saveItem(i, el){
+  let text = el.parentElement.parentElement.querySelector("span").innerText;
+  let parts = text.split("→");
+  if(parts.length>=2){
+    data[i] = {q:parts[0].trim(), a:parts[1].trim()};
+    renderQA(); renderKB(); renderFAQ();
+  }
+}
+
+function deleteItem(i){
+  data.splice(i,1);
+  renderQA(); renderKB(); renderFAQ();
+}
+
+/* STICKY */
+const colors = ["#ffd54f","#4fc3f7","#ff8a80","#81c784"];
+
+function addNote(){
+  let text = document.getElementById("noteInput").value;
+  if(!text) return;
+
+  let color = colors[Math.floor(Math.random()*colors.length)];
+
+  let div = document.createElement("div");
+  div.className="note";
+  div.style.background=color;
+
+  div.innerHTML = `
+  <div class="note-header" onclick="toggleNote(this)">
+    Note
+    <div class="icons">
+      <span onclick="event.stopPropagation(); deleteNote(this)">🗑</span>
+    </div>
+  </div>
+  <div contenteditable="true">${text}</div>
+  `;
+
+  document.getElementById("notes").appendChild(div);
+  document.getElementById("noteInput").value="";
+}
+
+/* REMINDER */
+function addReminder(){
+  let text = document.getElementById("remInput").value;
+  if(!text) return;
+
+  let div = document.createElement("div");
+  div.className="note";
+  div.style.background="#90caf9";
+
+  div.innerHTML = `
+  <div class="note-header" onclick="toggleNote(this)">
+    Reminder
+    <div class="icons">
+      <span onclick="event.stopPropagation(); deleteNote(this)">🗑</span>
+    </div>
+  </div>
+  <div contenteditable="true">${text}</div>
+  `;
+
+  document.getElementById("reminders").appendChild(div);
+  document.getElementById("remInput").value="";
+}
+
+/* COLLAPSE */
+function toggleNote(el){
+  let content = el.parentElement.children[1];
+  content.classList.toggle("hidden");
+}
+
+/* DELETE NOTE */
+function deleteNote(el){
+  el.closest(".note").remove();
 }
 
 </script>
