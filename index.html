@@ -4,11 +4,12 @@
 <meta charset="UTF-8">
 <title>Appointment AI</title>
 <style>
-/* GLOBAL */
+/* GLOBAL STYLES */
 body {
   margin:0;
   font-family:Segoe UI, sans-serif;
-  background: radial-gradient(circle, #0a0a0a, #000);
+  background: url('https://images.unsplash.com/photo-1612831455545-c5b8fa2f6ebf?auto=format&fit=crop&w=1950&q=80') no-repeat center center fixed;
+  background-size: cover;
   color:white;
   overflow-x:hidden;
 }
@@ -31,7 +32,7 @@ h1{
 
 /* PANELS */
 .panel{
-  background: rgba(20,20,20,0.9);
+  background: rgba(20,20,20,0.85);
   border:1px solid rgba(255,0,0,0.3);
   box-shadow:0 0 15px rgba(0,150,255,0.3);
   border-radius:10px;
@@ -40,7 +41,7 @@ h1{
 }
 
 /* LEFT AND RIGHT */
-.left{ flex:2; min-width:300px; }
+.left{ flex:2; min-width:320px; }
 .right{ flex:1; min-width:250px; display:flex; flex-direction:column; gap:15px; max-height:90vh; overflow:auto; }
 
 /* INPUTS */
@@ -53,6 +54,8 @@ input, select{
   border:1px solid #333;
 }
 
+select { cursor:pointer; }
+
 /* BUTTONS */
 button{
   background:#111;
@@ -60,6 +63,7 @@ button{
   color:white;
   padding:6px;
   cursor:pointer;
+  margin-top:5px;
 }
 
 /* LIST ITEMS */
@@ -83,6 +87,7 @@ button{
   background:#111;
   min-height:50px;
   margin-bottom:10px;
+  border-radius:5px;
 }
 
 /* STICKY NOTES */
@@ -91,6 +96,7 @@ button{
   padding:8px;
   color:black;
   margin-top:10px;
+  word-break:break-word;
 }
 
 .note-header{
@@ -102,6 +108,7 @@ button{
 
 .note-body{
   margin-top:5px;
+  outline:none;
 }
 
 .hidden{ display:none; }
@@ -122,6 +129,16 @@ button{
   border-radius:1px;
   margin-bottom:15px;
 }
+
+/* FONT STYLES PANEL */
+.font-panel{
+  display:flex;
+  gap:5px;
+  margin-top:5px;
+}
+.font-panel select,input[type=color]{
+  flex:1;
+}
 </style>
 </head>
 <body>
@@ -130,16 +147,23 @@ button{
 
 <div class="container">
 
-<!-- LEFT -->
+<!-- LEFT PANEL -->
 <div class="left">
 
 <div class="panel">
-<h3>Select User</h3>
-<select id="userSelect" onchange="switchUser()">
-  <option value="Admin">Admin</option>
-  <option value="User1">User1</option>
-  <option value="User2">User2</option>
-</select>
+<h3>Login / Select User</h3>
+<input id="usernameInput" placeholder="Enter username">
+<button onclick="loginUser()">Login</button>
+<select id="userSelect" onchange="switchUser()" style="display:none"></select>
+</div>
+
+<div class="panel">
+<h3>Screenshot Panel (Collapsible)</h3>
+<button onclick="togglePanel('screenshotPanel')">Toggle</button>
+<div id="screenshotPanel">
+  <input type="file" id="screenshotInput" accept="image/*">
+  <div id="screenshots"></div>
+</div>
 </div>
 
 <div class="panel">
@@ -155,22 +179,26 @@ button{
 <div id="qaList"></div>
 </div>
 
-<!-- Knowledge Base title only -->
 <h2 class="kb-title">Knowledge Base</h2>
 <hr class="kb-divider">
 
 <div class="panel">
-<h3>Frequently Asked</h3>
+<h3>Frequently Asked Questions</h3>
 <div id="faqList"></div>
 </div>
 
 </div>
 
-<!-- RIGHT -->
+<!-- RIGHT PANEL -->
 <div class="right">
 
 <div class="panel">
 <h3>Sticky Notes</h3>
+<div class="font-panel">
+  <select id="noteFont"><option value="Segoe UI">Segoe UI</option><option value="Arial">Arial</option><option value="Courier New">Courier New</option></select>
+  <input id="noteSize" type="number" placeholder="Size" min="8" max="36">
+  <input id="noteColor" type="color" value="#000000">
+</div>
 <input id="noteInput" placeholder="Write note">
 <button onclick="addNote()">Add</button>
 <div id="notes"></div>
@@ -178,6 +206,11 @@ button{
 
 <div class="panel">
 <h3>Reminders</h3>
+<div class="font-panel">
+  <select id="remFont"><option value="Segoe UI">Segoe UI</option><option value="Arial">Arial</option><option value="Courier New">Courier New</option></select>
+  <input id="remSize" type="number" placeholder="Size" min="8" max="36">
+  <input id="remColor" type="color" value="#000000">
+</div>
 <input id="remInput" placeholder="Write reminder">
 <button onclick="addReminder()">Add</button>
 <div id="reminders"></div>
@@ -187,37 +220,42 @@ button{
 </div>
 
 <script>
+// ---------- USERS / LOGIN ----------
 const usersKey = "appointmentAIUsers";
 let users = JSON.parse(localStorage.getItem(usersKey)) || {};
-let currentUser = document.getElementById("userSelect").value;
+let currentUser = null;
 
-// Ensure each user has a data structure
-function initUser(user){
-  if(!users[user]){
-    users[user] = {qa:[], notes:[], reminders:[]};
-    saveUsers();
-  }
-}
-
-// Save all users to localStorage
-function saveUsers(){
+function loginUser(){
+  const name = document.getElementById("usernameInput").value.trim();
+  if(!name) return;
+  currentUser = name;
+  if(!users[currentUser]) users[currentUser]={qa:[],notes:[],reminders:[],screenshots:[]};
   localStorage.setItem(usersKey, JSON.stringify(users));
+  refreshUserDropdown();
+  document.getElementById("usernameInput").style.display="none";
+  document.getElementById("userSelect").style.display="block";
+  switchUser();
 }
 
-// Switch user
+function refreshUserDropdown(){
+  const sel = document.getElementById("userSelect");
+  sel.innerHTML="";
+  Object.keys(users).forEach(u=>sel.innerHTML+=`<option value="${u}" ${u===currentUser?"selected":""}>${u}</option>`);
+}
+
 function switchUser(){
   currentUser = document.getElementById("userSelect").value;
-  initUser(currentUser);
   renderQA();
   renderFAQ();
   renderNotes();
   renderReminders();
+  renderScreenshots();
 }
 
-// ADD QA
+// ---------- MANUAL ADD QA ----------
 function addQA(){
-  let q=document.getElementById('q').value;
-  let a=document.getElementById('a').value;
+  const q=document.getElementById('q').value;
+  const a=document.getElementById('a').value;
   if(!q||!a) return;
   users[currentUser].qa.push({q,a});
   saveUsers();
@@ -227,159 +265,154 @@ function addQA(){
   document.getElementById('a').value="";
 }
 
-/* RENDER QA */
 function renderQA(){
-  let list=document.getElementById('qaList');
-  list.innerHTML="";
+  const list=document.getElementById('qaList'); list.innerHTML="";
   users[currentUser].qa.forEach((item,i)=>{
     list.innerHTML+=`
-    <div class="item" onclick="showAnswer(${i})">
-      <span contenteditable="true">${item.q} → ${item.a}</span>
-      <div class="icons">
-        <span onclick="event.stopPropagation(); editItem(this)">✏️</span>
-        <span onclick="event.stopPropagation(); saveItem(${i},this)">💾</span>
-        <span onclick="event.stopPropagation(); deleteItem(${i})">🗑</span>
-      </div>
-    </div>`;
+      <div class="item" onclick="showAnswer(${i})">
+        <span contenteditable="true">${item.q} → ${item.a}</span>
+        <div class="icons">
+          <span onclick="event.stopPropagation(); editItem(this)">✏️</span>
+          <span onclick="event.stopPropagation(); saveItem(${i},this)">💾</span>
+          <span onclick="event.stopPropagation(); deleteItem(${i})">🗑</span>
+        </div>
+      </div>`;
   });
 }
 
-/* FAQ */
 function renderFAQ(){
-  let faq=document.getElementById('faqList');
-  faq.innerHTML="";
+  const faq=document.getElementById('faqList'); faq.innerHTML="";
   users[currentUser].qa.forEach((item,i)=>{
     faq.innerHTML+=`
-    <div class="item">
-      <span contenteditable="true">${item.q}</span>
-      <div class="icons">
-        <span onclick="editItem(this)">✏️</span>
-        <span onclick="saveItem(${i},this)">💾</span>
-        <span onclick="deleteItem(${i})">🗑</span>
-      </div>
-    </div>`;
+      <div class="item">
+        <span contenteditable="true">${item.q}</span>
+        <div class="icons">
+          <span onclick="editItem(this)">✏️</span>
+          <span onclick="saveItem(${i},this)">💾</span>
+          <span onclick="deleteItem(${i})">🗑</span>
+        </div>
+      </div>`;
   });
 }
 
-/* SHOW ANSWER */
-function showAnswer(i){
-  document.getElementById("answerBox").innerText=users[currentUser].qa[i].a;
-}
+function showAnswer(i){ document.getElementById("answerBox").innerText=users[currentUser].qa[i].a; }
 
-/* ICON FUNCTIONS */
 function editItem(el){ el.parentElement.parentElement.querySelector("span").focus(); }
 function saveItem(i,el){
-  let text=el.parentElement.parentElement.querySelector("span").innerText;
-  let parts=text.split("→");
+  const text=el.parentElement.parentElement.querySelector("span").innerText;
+  const parts=text.split("→");
   if(parts.length>=2){ 
-    users[currentUser].qa[i]={q:parts[0].trim(),a:parts[1].trim()}; 
-    saveUsers();
-    renderQA(); 
-    renderFAQ(); 
+    users[currentUser].qa[i]={q:parts[0].trim(),a:parts[1].trim()};
+    saveUsers(); renderQA(); renderFAQ();
   }
 }
 function deleteItem(i){ users[currentUser].qa.splice(i,1); saveUsers(); renderQA(); renderFAQ(); }
 
-/* STICKY NOTES */
+// ---------- STICKY NOTES ----------
 const colors=["#ffd54f","#4fc3f7","#ff8a80","#81c784","#ce93d8"];
 function addNote(){
-  let text=document.getElementById("noteInput").value;
-  if(!text) return;
-  let color=colors[Math.floor(Math.random()*colors.length)];
-  users[currentUser].notes.push({text,color});
+  const text=document.getElementById("noteInput").value; if(!text) return;
+  const font=document.getElementById("noteFont").value;
+  const size=document.getElementById("noteSize").value || 14;
+  const color=document.getElementById("noteColor").value;
+  users[currentUser].notes.push({text,font,size,color});
   saveUsers();
   renderNotes();
   document.getElementById("noteInput").value="";
 }
 function renderNotes(){
-  let container=document.getElementById("notes");
-  container.innerHTML="";
-  users[currentUser].notes.forEach((note,i)=>{
-    let div=document.createElement("div");
-    div.className="note";
-    div.style.background=note.color;
+  const container=document.getElementById("notes"); container.innerHTML="";
+  users[currentUser].notes.forEach((n,i)=>{
+    let div=document.createElement("div"); div.className="note";
+    div.style.background=colors[i%colors.length];
     div.innerHTML=`
       <div class="note-header">
         <span onclick="toggleNote(this)">Note</span>
         <div class="icons">
           <span onclick="event.stopPropagation(); editNote(this)">✏️</span>
           <span onclick="event.stopPropagation(); saveNote(${i},this)">💾</span>
-          <span onclick="event.stopPropagation(); changeColor(${i},this)">🎨</span>
           <span onclick="event.stopPropagation(); deleteNote(${i})">🗑</span>
         </div>
       </div>
-      <div class="note-body" contenteditable="true">${note.text}</div>
+      <div class="note-body" contenteditable="true" style="font-family:${n.font}; font-size:${n.size}px; color:${n.color}">${n.text}</div>
     `;
     container.appendChild(div);
   });
 }
 
-/* REMINDERS */
+// ---------- REMINDERS ----------
 function addReminder(){
-  let text=document.getElementById("remInput").value;
-  if(!text) return;
-  users[currentUser].reminders.push({text});
+  const text=document.getElementById("remInput").value; if(!text) return;
+  const font=document.getElementById("remFont").value;
+  const size=document.getElementById("remSize").value || 14;
+  const color=document.getElementById("remColor").value;
+  users[currentUser].reminders.push({text,font,size,color});
   saveUsers();
   renderReminders();
   document.getElementById("remInput").value="";
 }
 function renderReminders(){
-  let container=document.getElementById("reminders");
-  container.innerHTML="";
-  users[currentUser].reminders.forEach((rem,i)=>{
-    let div=document.createElement("div");
-    div.className="note";
+  const container=document.getElementById("reminders"); container.innerHTML="";
+  users[currentUser].reminders.forEach((r,i)=>{
+    let div=document.createElement("div"); div.className="note";
     div.style.background="#90caf9";
     div.innerHTML=`
       <div class="note-header">
         <span onclick="toggleNote(this)">Reminder</span>
         <div class="icons">
           <span onclick="event.stopPropagation(); editNote(this)">✏️</span>
-          <span onclick="event.stopPropagation(); saveNote(${i},this)">💾</span>
-          <span onclick="event.stopPropagation(); deleteNote(${i})">🗑</span>
+          <span onclick="event.stopPropagation(); saveReminder(${i},this)">💾</span>
+          <span onclick="event.stopPropagation(); deleteReminder(${i})">🗑</span>
         </div>
       </div>
-      <div class="note-body" contenteditable="true">${rem.text}</div>
+      <div class="note-body" contenteditable="true" style="font-family:${r.font}; font-size:${r.size}px; color:${r.color}">${r.text}</div>
     `;
     container.appendChild(div);
   });
 }
 
-/* NOTE FUNCTIONS */
-function toggleNote(el){ let body=el.closest(".note").querySelector(".note-body"); body.classList.toggle("hidden"); }
+// ---------- NOTE FUNCTIONS ----------
+function toggleNote(el){ el.closest(".note").querySelector(".note-body").classList.toggle("hidden"); }
 function editNote(el){ el.closest(".note").querySelector(".note-body").focus(); }
 function saveNote(i,el){
-  let noteBody = el.closest(".note").querySelector(".note-body");
-  if(el.closest(".note").parentElement.id==="notes"){
-    users[currentUser].notes[i].text = noteBody.innerText;
-  } else {
-    users[currentUser].reminders[i].text = noteBody.innerText;
-  }
-  saveUsers();
-  el.closest(".note").style.boxShadow="0 0 15px lime";
-  setTimeout(()=>el.closest(".note").style.boxShadow="",500);
+  const n = users[currentUser].notes[i];
+  const text = el.closest(".note").querySelector(".note-body").innerText;
+  n.text=text; saveUsers(); renderNotes();
 }
 function deleteNote(el){
-  let parent = el.closest(".note").parentElement.id;
-  let notesArr = parent==="notes"?users[currentUser].notes:users[currentUser].reminders;
-  let index = Array.from(el.closest(".note").parentElement.children).indexOf(el.closest(".note"));
-  notesArr.splice(index,1);
+  const index = Array.from(el.closest(".note").parentElement.children).indexOf(el.closest(".note"));
+  if(el.closest(".note").parentElement.id==="notes"){ users[currentUser].notes.splice(index,1); renderNotes();}
+  else { users[currentUser].reminders.splice(index,1); renderReminders();}
   saveUsers();
-  if(parent==="notes") renderNotes(); else renderReminders();
 }
-function changeColor(i,el){
-  users[currentUser].notes[i].color=colors[Math.floor(Math.random()*colors.length)];
-  saveUsers();
-  renderNotes();
+function saveReminder(i,el){
+  const r=users[currentUser].reminders[i];
+  r.text=el.closest(".note").querySelector(".note-body").innerText;
+  saveUsers(); renderReminders();
 }
 
-// Initialize
-initUser(currentUser);
-renderQA();
-renderFAQ();
-renderNotes();
-renderReminders();
+// ---------- SCREENSHOT PANEL ----------
+function togglePanel(id){
+  const panel=document.getElementById(id); panel.classList.toggle("hidden");
+}
+document.getElementById("screenshotInput").addEventListener("change",function(e){
+  const file=e.target.files[0]; if(!file) return;
+  const url=URL.createObjectURL(file);
+  users[currentUser].screenshots.push(url); saveUsers(); renderScreenshots();
+});
+function renderScreenshots(){
+  const container=document.getElementById("screenshots"); container.innerHTML="";
+  (users[currentUser].screenshots||[]).forEach(src=>{
+    const img=document.createElement("img"); img.src=src; img.style.maxWidth="100%"; img.style.marginTop="5px";
+    container.appendChild(img);
+  });
+}
 
+// ---------- SAVE USERS ----------
+function saveUsers(){ localStorage.setItem(usersKey, JSON.stringify(users)); }
+
+// ---------- INIT ----------
+if(Object.keys(users).length>0){ currentUser=Object.keys(users)[0]; refreshUserDropdown(); switchUser(); }
 </script>
 </body>
 </html>
