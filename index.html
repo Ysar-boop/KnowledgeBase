@@ -5,71 +5,59 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>APSAA – Appointment Setting Agent Assistance</title>
 <style>
-  * { box-sizing:border-box; margin:0; padding:0; font-family:'Segoe UI', sans-serif; }
+  * { box-sizing: border-box; margin: 0; padding: 0; font-family:'Segoe UI', sans-serif; }
   body {
-    height:100vh;
-    display:flex;
-    flex-direction:column;
-    color:#f0f0f0;
+    display: flex; flex-direction: column; height: 100vh; color:#f0f0f0;
     background: url('https://images.unsplash.com/photo-1612832020910-37eb6e0b6a4f?auto=format&fit=crop&w=1950&q=80') no-repeat center center fixed;
-    background-size: cover;
-    position: relative;
+    background-size: cover; position: relative;
   }
   body::before {
-    content:"";
-    position:absolute;
-    top:0; left:0; right:0; bottom:0;
-    background-color: rgba(0,0,0,0.65);
-    z-index:0;
+    content:""; position:absolute; top:0; left:0; right:0; bottom:0;
+    background-color: rgba(0,0,0,0.65); z-index:0;
   }
   header {
-    display:flex;
-    justify-content:space-between;
-    align-items:center;
-    padding:15px 30px;
-    background:#111;
-    border-bottom:1px solid #222;
-    position: relative;
-    z-index:1;
+    display:flex; justify-content:space-between; align-items:center;
+    padding:15px 30px; background:#111; border-bottom:1px solid #222; position: relative; z-index:1;
   }
-  header h1 { color:#8f7cff; font-size:1.5em; text-align:left; }
+  header h1 { color:#8f7cff; font-size:1.5em; }
   header .profile { width:40px; height:40px; background:#222; border-radius:50%; cursor:pointer; }
 
-  .main { display:flex; flex:1; overflow:hidden; position: relative; z-index:1; }
+  .main { display:flex; flex:1; overflow:hidden; position:relative; z-index:1; }
 
+  /* Left Panel */
   .left-panel { flex:2; display:flex; flex-direction:column; padding:20px; gap:15px; overflow-y:auto; }
   .screenshot-area {
     flex:1; background:#1a1a1a; border:2px dashed #444; border-radius:8px;
     display:flex; align-items:center; justify-content:center; color:#888; cursor:pointer; transition:0.2s;
   }
   .screenshot-area:hover { border-color:#8f7cff; color:#bbb; }
-  .manual-input { margin-top:10px; display:flex; flex-direction:column; gap:5px; }
-  .manual-input input { padding:8px; border-radius:5px; border:none; background:#1a1a1a; color:#fff; }
-  .manual-input button { margin-top:5px; padding:8px; border:none; border-radius:5px; background:#8f7cff; color:#fff; cursor:pointer; transition:0.2s; }
-  .manual-input button:hover { opacity:0.85; }
   .ai-output { flex:1; background:#1a1a1a; padding:15px; border-radius:8px; overflow-y:auto; font-size:0.95em; line-height:1.5; }
 
-  .right-panel { flex:1; background:#111; border-left:1px solid #222; display:flex; flex-direction:column; padding:15px; gap:15px; overflow-y:auto; }
+  /* Manual Input & Knowledge Base */
+  .manual-input { display:flex; flex-direction:column; gap:5px; margin-top:5px; }
+  .manual-input input { padding:8px; border-radius:5px; border:none; background:#1a1a1a; color:#fff; }
+  .manual-input button { padding:8px; border:none; border-radius:5px; background:#8f7cff; color:#fff; cursor:pointer; }
+  .manual-input button:hover { opacity:0.85; }
+  .kb-panel { background:#1a1a1a; padding:10px; border-radius:8px; display:flex; flex-direction:column; gap:8px; max-height:200px; overflow-y:auto; }
+  .kb-panel h3 { color:#8f7cff; font-size:1em; }
+  .kb-entry { background:#222; padding:6px; border-radius:5px; display:flex; justify-content:space-between; align-items:center; }
+  .kb-entry span { flex:1; }
+  .kb-entry button { background:#8f7cff; border:none; border-radius:3px; padding:3px 6px; color:#fff; cursor:pointer; }
 
-  .sticky-header { display:flex; justify-content:space-between; align-items:center; margin-bottom:10px; }
+  /* Right Panel */
+  .right-panel { flex:1; background:#111; border-left:1px solid #222; display:flex; flex-direction:column; padding:10px; overflow-y:auto; }
+  .sticky-header { display:flex; justify-content:space-between; align-items:center; cursor:pointer; }
   .sticky-header h2 { color:#8f7cff; font-size:1.1em; }
-  .sticky-header button { background:#8f7cff; border:none; padding:5px 10px; border-radius:5px; color:#fff; cursor:pointer; }
+  .sticky-notes { display:flex; flex-direction:column; gap:8px; margin-top:10px; }
 
-  .sticky-notes { display:flex; flex-direction:column; gap:10px; }
-  .note { background:#222; padding:10px; border-radius:5px; position:relative; cursor:grab; display:flex; justify-content:space-between; align-items:center; }
+  .note { background:#222; padding:10px; border-radius:5px; display:flex; justify-content:space-between; align-items:center; cursor:grab; }
   .note .note-text { flex:1; outline:none; color:#fff; }
   .note .delete { color:#ff6b6b; cursor:pointer; margin-left:5px; }
   .note .pin { color:#f5e04b; cursor:pointer; margin-left:5px; }
   .note .color-picker { width:15px; height:15px; border-radius:50%; margin-left:5px; cursor:pointer; border:1px solid #555; }
 
-  .kb-panel { background:#1a1a1a; border-radius:8px; padding:10px; display:flex; flex-direction:column; gap:10px; flex:1; }
-  .kb-panel h3 { color:#8f7cff; font-size:1em; }
-  .kb-entry { background:#222; padding:8px; border-radius:5px; display:flex; justify-content:space-between; align-items:center; }
-  .kb-entry span { flex:1; }
-  .kb-entry button { background:#8f7cff; border:none; border-radius:3px; padding:3px 6px; color:#fff; cursor:pointer; margin-left:3px; }
-  .kb-add { display:flex; gap:5px; }
-  .kb-add input { flex:1; padding:5px; border-radius:5px; border:none; background:#1a1a1a; color:#fff; }
-  .kb-add button { background:#8f7cff; border:none; border-radius:5px; padding:5px 10px; color:#fff; cursor:pointer; }
+  /* Collapsed sticky notes */
+  .collapsed .sticky-notes { display:none; }
 </style>
 </head>
 <body>
@@ -81,8 +69,14 @@
 
 <div class="main">
 
+  <!-- Left Panel -->
   <div class="left-panel">
     <div class="screenshot-area" id="screenshotArea">Click or Paste Screenshot Here</div>
+
+    <div class="kb-panel" id="kbPanel">
+      <h3>Knowledge Base</h3>
+      <div id="kbEntries"></div>
+    </div>
 
     <div class="manual-input">
       <input type="text" id="manualQuestion" placeholder="Type your question manually">
@@ -92,22 +86,13 @@
     <div class="ai-output" id="aiOutput">AI-generated answers will appear here...</div>
   </div>
 
-  <div class="right-panel">
-    <div class="sticky-header">
-      <h2>Sticky Notes</h2>
+  <!-- Right Panel -->
+  <div class="right-panel" id="rightPanel">
+    <div class="sticky-header" id="stickyHeader">
+      <h2>Notes & Reminders</h2>
       <button id="addNoteBtn">+ Add</button>
     </div>
     <div class="sticky-notes" id="stickyNotes"></div>
-
-    <div class="kb-panel">
-      <h3>Knowledge Base</h3>
-      <div id="kbEntries"></div>
-      <div class="kb-add">
-        <input type="text" id="kbQuestion" placeholder="Question">
-        <input type="text" id="kbAnswer" placeholder="Answer">
-        <button id="addKbBtn">Add</button>
-      </div>
-    </div>
   </div>
 
 </div>
@@ -116,6 +101,8 @@
   // ---------- Sticky Notes ----------
   const stickyNotesContainer = document.getElementById('stickyNotes');
   const addNoteBtn = document.getElementById('addNoteBtn');
+  const rightPanel = document.getElementById('rightPanel');
+  const stickyHeader = document.getElementById('stickyHeader');
 
   function createNote(text='New Note', color='#222') {
     const note = document.createElement('div');
@@ -150,19 +137,24 @@
     note.appendChild(noteText); note.appendChild(controls);
     stickyNotesContainer.appendChild(note);
   }
+
   addNoteBtn.addEventListener('click',()=>createNote());
   createNote('Welcome to APSAA!', '#8f7cff');
 
+  stickyHeader.addEventListener('click',()=>{
+    rightPanel.classList.toggle('collapsed');
+  });
+
   // ---------- Screenshot Area ----------
-  const screenshotArea=document.getElementById('screenshotArea');
+  const screenshotArea = document.getElementById('screenshotArea');
   screenshotArea.addEventListener('click',()=>alert('File upload functionality placeholder.'));
-  document.addEventListener('paste',e=>{
+  document.addEventListener('paste', e => {
     const items=e.clipboardData.items;
     for(let i=0;i<items.length;i++){
       if(items[i].type.indexOf('image')!==-1){
-        const blob=items[i].getAsFile();
-        const img=document.createElement('img');
-        img.src=URL.createObjectURL(blob);
+        const blob = items[i].getAsFile();
+        const img = document.createElement('img');
+        img.src = URL.createObjectURL(blob);
         img.style.maxWidth='100%';
         screenshotArea.innerHTML=''; screenshotArea.appendChild(img);
         document.getElementById('aiOutput').innerText='Processing screenshot... AI will generate answers here.';
@@ -174,7 +166,7 @@
   const submitQuestion=document.getElementById('submitQuestion');
   const manualQuestion=document.getElementById('manualQuestion');
   submitQuestion.addEventListener('click',()=>{
-    const q=manualQuestion.value.trim();
+    const q = manualQuestion.value.trim();
     if(q){
       document.getElementById('aiOutput').innerText=`AI Answer (simulated) for: "${q}"`;
       manualQuestion.value='';
@@ -182,24 +174,19 @@
   });
 
   // ---------- Knowledge Base ----------
-  const kbEntries=document.getElementById('kbEntries');
-  const kbQuestion=document.getElementById('kbQuestion');
-  const kbAnswer=document.getElementById('kbAnswer');
-  const addKbBtn=document.getElementById('addKbBtn');
-
+  const kbEntries = document.getElementById('kbEntries');
   function addKbEntry(q,a){
     const entry=document.createElement('div'); entry.className='kb-entry';
     const span=document.createElement('span'); span.innerText=`Q: ${q} → A: ${a}`;
     const delBtn=document.createElement('button'); delBtn.innerText='Delete';
     delBtn.addEventListener('click',()=>kbEntries.removeChild(entry));
-    entry.appendChild(span); entry.appendChild(delBtn); kbEntries.appendChild(entry);
+    entry.appendChild(span); entry.appendChild(delBtn);
+    kbEntries.appendChild(entry);
   }
-  addKbBtn.addEventListener('click',()=>{
-    const q=kbQuestion.value.trim(); const a=kbAnswer.value.trim();
-    if(q && a){ addKbEntry(q,a); kbQuestion.value=''; kbAnswer.value=''; }
-  });
-  addKbEntry('What is APSAA?','It helps generate automated answers for appointment setting tasks.');
-  addKbEntry('How to add a sticky note?','Click + Add in the sticky notes panel.');
+
+  // Preloaded KB
+  addKbEntry('What is APSAA?', 'It helps generate automated answers for appointment setting tasks.');
+  addKbEntry('How to add a sticky note?', 'Click + Add in the sticky notes panel.');
 </script>
 
 </body>
