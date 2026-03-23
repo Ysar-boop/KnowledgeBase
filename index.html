@@ -1,62 +1,56 @@
 <!DOCTYPE html>
-<html lang="en">
+<html>
 <head>
 <meta charset="UTF-8">
 <title>Appointment AI</title>
+
 <style>
-/* GLOBAL STYLES */
-body {
+body{
   margin:0;
-  font-family:Segoe UI, sans-serif;
-  background: url('https://images.unsplash.com/photo-1612831455545-c5b8fa2f6ebf?auto=format&fit=crop&w=1950&q=80') no-repeat center center fixed;
-  background-size: cover;
+  font-family:Segoe UI;
+  background: linear-gradient(135deg,#050a1f,#000,#1a0a0a);
   color:white;
-  overflow-x:hidden;
 }
 
 /* HEADER */
 h1{
   text-align:center;
   color:#ff2a2a;
-  text-shadow:0 0 15px red;
+  text-shadow:0 0 20px red,0 0 40px blue;
   margin:15px 0;
 }
 
-/* CONTAINER */
+/* LAYOUT */
 .container{
   display:flex;
-  flex-wrap:wrap;
-  gap:15px;
-  padding:15px;
+  gap:20px;
+  padding:20px;
 }
+
+.left{flex:2;}
+.right{flex:1;}
 
 /* PANELS */
 .panel{
-  background: rgba(20,20,20,0.85);
-  border:1px solid rgba(255,0,0,0.3);
+  background:rgba(15,15,25,0.9);
+  padding:15px;
+  border-radius:12px;
+  margin-bottom:20px;
   box-shadow:0 0 15px rgba(0,150,255,0.3);
-  border-radius:10px;
-  padding:10px;
-  margin-bottom:15px;
 }
 
-/* LEFT AND RIGHT */
-.left{ flex:2; min-width:320px; }
-.right{ flex:1; min-width:250px; display:flex; flex-direction:column; gap:15px; max-height:90vh; overflow:auto; }
-
 /* INPUTS */
-input, select{
+input{
   width:100%;
-  padding:8px;
+  padding:10px;
   margin:5px 0;
   background:#111;
   color:white;
   border:1px solid #333;
+  border-radius:5px;
 }
 
-select { cursor:pointer; }
-
-/* BUTTONS */
+/* BUTTON */
 button{
   background:#111;
   border:1px solid red;
@@ -66,37 +60,36 @@ button{
   margin-top:5px;
 }
 
-/* LIST ITEMS */
+/* QA ITEMS */
 .item{
   display:flex;
   justify-content:space-between;
   background:#111;
-  padding:6px;
-  margin-top:5px;
+  padding:8px;
+  margin-top:8px;
+  border-radius:6px;
+}
+
+.icons span{
+  margin-left:10px;
   cursor:pointer;
 }
 
-.icons{
-  display:flex;
-  gap:8px;
-}
-
-/* ANSWER BOX */
-#answerBox{
-  padding:10px;
+/* ANSWER */
+#answer{
   background:#111;
+  padding:10px;
+  border-radius:6px;
   min-height:50px;
-  margin-bottom:10px;
-  border-radius:5px;
 }
 
-/* STICKY NOTES */
+/* NOTES */
 .note{
-  border-radius:8px;
-  padding:8px;
+  background:#ffd54f;
   color:black;
+  padding:10px;
+  border-radius:10px;
   margin-top:10px;
-  word-break:break-word;
 }
 
 .note-header{
@@ -106,69 +99,39 @@ button{
   cursor:pointer;
 }
 
-.note-body{
-  margin-top:5px;
-  outline:none;
-}
+.hidden{display:none;}
 
-.hidden{ display:none; }
-
-/* Knowledge Base Title */
-.kb-title{
-  margin:20px 0 10px 0;
+/* KNOWLEDGE BASE */
+.kb{
+  font-size:22px;
   color:#4fc3f7;
-  text-shadow:0 0 5px #4fc3f7, 0 0 10px #00c3ff, 0 0 20px #00f;
-  font-weight:bold;
-  letter-spacing:1px;
-}
-
-.kb-divider{
-  border:none;
-  height:2px;
-  background: linear-gradient(to right, #ff2a2a, #4fc3f7, #ff2a2a);
-  border-radius:1px;
-  margin-bottom:15px;
-}
-
-/* FONT STYLES PANEL */
-.font-panel{
-  display:flex;
-  gap:5px;
-  margin-top:5px;
-}
-.font-panel select,input[type=color]{
-  flex:1;
+  text-shadow:0 0 10px cyan,0 0 20px blue;
+  margin:20px 0 10px;
 }
 </style>
 </head>
+
 <body>
 
 <h1>Appointment AI</h1>
 
 <div class="container">
 
-<!-- LEFT PANEL -->
+<!-- LEFT -->
 <div class="left">
 
 <div class="panel">
-<h3>Login / Select User</h3>
-<input id="usernameInput" placeholder="Enter username">
-<button onclick="loginUser()">Login</button>
-<select id="userSelect" onchange="switchUser()" style="display:none"></select>
-</div>
-
-<div class="panel">
-<h3>Screenshot Panel (Collapsible)</h3>
-<button onclick="togglePanel('screenshotPanel')">Toggle</button>
-<div id="screenshotPanel">
-  <input type="file" id="screenshotInput" accept="image/*">
-  <div id="screenshots"></div>
+<h3>Screenshot Panel</h3>
+<button onclick="toggle('ss')">Toggle</button>
+<div id="ss">
+<input type="file" id="imgInput">
+<div id="imgs"></div>
 </div>
 </div>
 
 <div class="panel">
 <h3>Answer</h3>
-<div id="answerBox"></div>
+<div id="answer"></div>
 </div>
 
 <div class="panel">
@@ -176,243 +139,170 @@ button{
 <input id="q" placeholder="Question / Objection">
 <input id="a" placeholder="Answer">
 <button onclick="addQA()">Add</button>
-<div id="qaList"></div>
+<div id="list"></div>
 </div>
 
-<h2 class="kb-title">Knowledge Base</h2>
-<hr class="kb-divider">
+<div class="kb">Knowledge Base</div>
 
 <div class="panel">
 <h3>Frequently Asked Questions</h3>
-<div id="faqList"></div>
+<div id="faq"></div>
 </div>
 
 </div>
 
-<!-- RIGHT PANEL -->
+<!-- RIGHT -->
 <div class="right">
 
 <div class="panel">
-<h3>Sticky Notes</h3>
-<div class="font-panel">
-  <select id="noteFont"><option value="Segoe UI">Segoe UI</option><option value="Arial">Arial</option><option value="Courier New">Courier New</option></select>
-  <input id="noteSize" type="number" placeholder="Size" min="8" max="36">
-  <input id="noteColor" type="color" value="#000000">
-</div>
-<input id="noteInput" placeholder="Write note">
-<button onclick="addNote()">Add</button>
+<h3>Sticky Notes / Reminders</h3>
+<input id="noteInput" placeholder="Type and press ENTER">
 <div id="notes"></div>
 </div>
 
-<div class="panel">
-<h3>Reminders</h3>
-<div class="font-panel">
-  <select id="remFont"><option value="Segoe UI">Segoe UI</option><option value="Arial">Arial</option><option value="Courier New">Courier New</option></select>
-  <input id="remSize" type="number" placeholder="Size" min="8" max="36">
-  <input id="remColor" type="color" value="#000000">
-</div>
-<input id="remInput" placeholder="Write reminder">
-<button onclick="addReminder()">Add</button>
-<div id="reminders"></div>
 </div>
 
-</div>
 </div>
 
 <script>
-// ---------- USERS / LOGIN ----------
-const usersKey = "appointmentAIUsers";
-let users = JSON.parse(localStorage.getItem(usersKey)) || {};
-let currentUser = null;
 
-function loginUser(){
-  const name = document.getElementById("usernameInput").value.trim();
-  if(!name) return;
-  currentUser = name;
-  if(!users[currentUser]) users[currentUser]={qa:[],notes:[],reminders:[],screenshots:[]};
-  localStorage.setItem(usersKey, JSON.stringify(users));
-  refreshUserDropdown();
-  document.getElementById("usernameInput").style.display="none";
-  document.getElementById("userSelect").style.display="block";
-  switchUser();
-}
+let data={qa:[],notes:[]};
 
-function refreshUserDropdown(){
-  const sel = document.getElementById("userSelect");
-  sel.innerHTML="";
-  Object.keys(users).forEach(u=>sel.innerHTML+=`<option value="${u}" ${u===currentUser?"selected":""}>${u}</option>`);
-}
-
-function switchUser(){
-  currentUser = document.getElementById("userSelect").value;
-  renderQA();
-  renderFAQ();
-  renderNotes();
-  renderReminders();
-  renderScreenshots();
-}
-
-// ---------- MANUAL ADD QA ----------
+/* QA */
 function addQA(){
-  const q=document.getElementById('q').value;
-  const a=document.getElementById('a').value;
-  if(!q||!a) return;
-  users[currentUser].qa.push({q,a});
-  saveUsers();
+  let q=document.getElementById('q').value;
+  let a=document.getElementById('a').value;
+  if(!q||!a)return;
+
+  data.qa.push({q,a});
   renderQA();
   renderFAQ();
+
   document.getElementById('q').value="";
   document.getElementById('a').value="";
 }
 
 function renderQA(){
-  const list=document.getElementById('qaList'); list.innerHTML="";
-  users[currentUser].qa.forEach((item,i)=>{
-    list.innerHTML+=`
-      <div class="item" onclick="showAnswer(${i})">
-        <span contenteditable="true">${item.q} → ${item.a}</span>
-        <div class="icons">
-          <span onclick="event.stopPropagation(); editItem(this)">✏️</span>
-          <span onclick="event.stopPropagation(); saveItem(${i},this)">💾</span>
-          <span onclick="event.stopPropagation(); deleteItem(${i})">🗑</span>
-        </div>
-      </div>`;
+  let el=document.getElementById('list');
+  el.innerHTML="";
+  data.qa.forEach((x,i)=>{
+    el.innerHTML+=`
+    <div class="item" onclick="show(${i})">
+      <span contenteditable>${x.q} → ${x.a}</span>
+      <div class="icons">
+        <span onclick="event.stopPropagation();edit(this)">✏️</span>
+        <span onclick="event.stopPropagation();save(${i},this)">💾</span>
+        <span onclick="event.stopPropagation();del(${i})">🗑</span>
+      </div>
+    </div>`;
   });
 }
 
 function renderFAQ(){
-  const faq=document.getElementById('faqList'); faq.innerHTML="";
-  users[currentUser].qa.forEach((item,i)=>{
-    faq.innerHTML+=`
-      <div class="item">
-        <span contenteditable="true">${item.q}</span>
-        <div class="icons">
-          <span onclick="editItem(this)">✏️</span>
-          <span onclick="saveItem(${i},this)">💾</span>
-          <span onclick="deleteItem(${i})">🗑</span>
-        </div>
-      </div>`;
+  let el=document.getElementById('faq');
+  el.innerHTML="";
+  data.qa.forEach((x,i)=>{
+    el.innerHTML+=`
+    <div class="item">
+      <span contenteditable>${x.q}</span>
+      <div class="icons">
+        <span onclick="edit(this)">✏️</span>
+        <span onclick="save(${i},this)">💾</span>
+        <span onclick="del(${i})">🗑</span>
+      </div>
+    </div>`;
   });
 }
 
-function showAnswer(i){ document.getElementById("answerBox").innerText=users[currentUser].qa[i].a; }
+function show(i){
+  document.getElementById('answer').innerText=data.qa[i].a;
+}
 
-function editItem(el){ el.parentElement.parentElement.querySelector("span").focus(); }
-function saveItem(i,el){
-  const text=el.parentElement.parentElement.querySelector("span").innerText;
-  const parts=text.split("→");
-  if(parts.length>=2){ 
-    users[currentUser].qa[i]={q:parts[0].trim(),a:parts[1].trim()};
-    saveUsers(); renderQA(); renderFAQ();
+function edit(e){
+  e.parentElement.parentElement.querySelector("span").focus();
+}
+
+function save(i,e){
+  let txt=e.parentElement.parentElement.querySelector("span").innerText;
+  let parts=txt.split("→");
+  if(parts.length>=2){
+    data.qa[i]={q:parts[0].trim(),a:parts[1].trim()};
   }
+  renderQA();
+  renderFAQ();
 }
-function deleteItem(i){ users[currentUser].qa.splice(i,1); saveUsers(); renderQA(); renderFAQ(); }
 
-// ---------- STICKY NOTES ----------
-const colors=["#ffd54f","#4fc3f7","#ff8a80","#81c784","#ce93d8"];
-function addNote(){
-  const text=document.getElementById("noteInput").value; if(!text) return;
-  const font=document.getElementById("noteFont").value;
-  const size=document.getElementById("noteSize").value || 14;
-  const color=document.getElementById("noteColor").value;
-  users[currentUser].notes.push({text,font,size,color});
-  saveUsers();
-  renderNotes();
-  document.getElementById("noteInput").value="";
+function del(i){
+  data.qa.splice(i,1);
+  renderQA();
+  renderFAQ();
 }
+
+/* NOTES */
+document.getElementById("noteInput").addEventListener("keypress",function(e){
+  if(e.key==="Enter"){
+    let val=this.value.trim();
+    if(!val)return;
+    data.notes.push(val);
+    this.value="";
+    renderNotes();
+  }
+});
+
 function renderNotes(){
-  const container=document.getElementById("notes"); container.innerHTML="";
-  users[currentUser].notes.forEach((n,i)=>{
-    let div=document.createElement("div"); div.className="note";
-    div.style.background=colors[i%colors.length];
-    div.innerHTML=`
+  let el=document.getElementById('notes');
+  el.innerHTML="";
+  data.notes.forEach((n,i)=>{
+    el.innerHTML+=`
+    <div class="note">
       <div class="note-header">
         <span onclick="toggleNote(this)">Note</span>
         <div class="icons">
-          <span onclick="event.stopPropagation(); editNote(this)">✏️</span>
-          <span onclick="event.stopPropagation(); saveNote(${i},this)">💾</span>
-          <span onclick="event.stopPropagation(); deleteNote(${i})">🗑</span>
+          <span onclick="editNote(this)">✏️</span>
+          <span onclick="saveNote(${i},this)">💾</span>
+          <span onclick="delNote(${i})">🗑</span>
         </div>
       </div>
-      <div class="note-body" contenteditable="true" style="font-family:${n.font}; font-size:${n.size}px; color:${n.color}">${n.text}</div>
-    `;
-    container.appendChild(div);
+      <div contenteditable>${n}</div>
+    </div>`;
   });
 }
 
-// ---------- REMINDERS ----------
-function addReminder(){
-  const text=document.getElementById("remInput").value; if(!text) return;
-  const font=document.getElementById("remFont").value;
-  const size=document.getElementById("remSize").value || 14;
-  const color=document.getElementById("remColor").value;
-  users[currentUser].reminders.push({text,font,size,color});
-  saveUsers();
-  renderReminders();
-  document.getElementById("remInput").value="";
-}
-function renderReminders(){
-  const container=document.getElementById("reminders"); container.innerHTML="";
-  users[currentUser].reminders.forEach((r,i)=>{
-    let div=document.createElement("div"); div.className="note";
-    div.style.background="#90caf9";
-    div.innerHTML=`
-      <div class="note-header">
-        <span onclick="toggleNote(this)">Reminder</span>
-        <div class="icons">
-          <span onclick="event.stopPropagation(); editNote(this)">✏️</span>
-          <span onclick="event.stopPropagation(); saveReminder(${i},this)">💾</span>
-          <span onclick="event.stopPropagation(); deleteReminder(${i})">🗑</span>
-        </div>
-      </div>
-      <div class="note-body" contenteditable="true" style="font-family:${r.font}; font-size:${r.size}px; color:${r.color}">${r.text}</div>
-    `;
-    container.appendChild(div);
-  });
+function toggleNote(e){
+  e.parentElement.parentElement.querySelector("div[contenteditable]").classList.toggle("hidden");
 }
 
-// ---------- NOTE FUNCTIONS ----------
-function toggleNote(el){ el.closest(".note").querySelector(".note-body").classList.toggle("hidden"); }
-function editNote(el){ el.closest(".note").querySelector(".note-body").focus(); }
-function saveNote(i,el){
-  const n = users[currentUser].notes[i];
-  const text = el.closest(".note").querySelector(".note-body").innerText;
-  n.text=text; saveUsers(); renderNotes();
-}
-function deleteNote(el){
-  const index = Array.from(el.closest(".note").parentElement.children).indexOf(el.closest(".note"));
-  if(el.closest(".note").parentElement.id==="notes"){ users[currentUser].notes.splice(index,1); renderNotes();}
-  else { users[currentUser].reminders.splice(index,1); renderReminders();}
-  saveUsers();
-}
-function saveReminder(i,el){
-  const r=users[currentUser].reminders[i];
-  r.text=el.closest(".note").querySelector(".note-body").innerText;
-  saveUsers(); renderReminders();
+function editNote(e){
+  e.parentElement.parentElement.nextElementSibling.focus();
 }
 
-// ---------- SCREENSHOT PANEL ----------
-function togglePanel(id){
-  const panel=document.getElementById(id); panel.classList.toggle("hidden");
+function saveNote(i,e){
+  let txt=e.parentElement.parentElement.nextElementSibling.innerText;
+  data.notes[i]=txt;
 }
-document.getElementById("screenshotInput").addEventListener("change",function(e){
-  const file=e.target.files[0]; if(!file) return;
-  const url=URL.createObjectURL(file);
-  users[currentUser].screenshots.push(url); saveUsers(); renderScreenshots();
+
+function delNote(i){
+  data.notes.splice(i,1);
+  renderNotes();
+}
+
+/* SCREENSHOT */
+function toggle(id){
+  document.getElementById(id).classList.toggle("hidden");
+}
+
+document.getElementById("imgInput").addEventListener("change",e=>{
+  let file=e.target.files[0];
+  if(!file)return;
+  let url=URL.createObjectURL(file);
+  let img=document.createElement("img");
+  img.src=url;
+  img.style.width="100%";
+  img.style.marginTop="10px";
+  document.getElementById("imgs").appendChild(img);
 });
-function renderScreenshots(){
-  const container=document.getElementById("screenshots"); container.innerHTML="";
-  (users[currentUser].screenshots||[]).forEach(src=>{
-    const img=document.createElement("img"); img.src=src; img.style.maxWidth="100%"; img.style.marginTop="5px";
-    container.appendChild(img);
-  });
-}
 
-// ---------- SAVE USERS ----------
-function saveUsers(){ localStorage.setItem(usersKey, JSON.stringify(users)); }
-
-// ---------- INIT ----------
-if(Object.keys(users).length>0){ currentUser=Object.keys(users)[0]; refreshUserDropdown(); switchUser(); }
 </script>
+
 </body>
 </html>
