@@ -4,11 +4,13 @@
 <meta charset="UTF-8">
 <title>Appointment AI</title>
 <style>
+/* GLOBAL */
 body {
   margin:0;
-  font-family:Segoe UI;
-  background: radial-gradient(circle at top, #0a0a0a, #000);
+  font-family:Segoe UI, sans-serif;
+  background: radial-gradient(circle, #0a0a0a, #000);
   color:white;
+  overflow-x:hidden;
 }
 
 /* HEADER */
@@ -16,57 +18,47 @@ h1{
   text-align:center;
   color:#ff2a2a;
   text-shadow:0 0 15px red;
-  margin:15px;
+  margin:15px 0;
 }
 
-/* LAYOUT */
+/* CONTAINER */
 .container{
   display:flex;
+  flex-wrap:wrap;
   gap:15px;
   padding:15px;
 }
 
 /* PANELS */
 .panel{
-  background:rgba(20,20,20,0.85);
+  background: rgba(20,20,20,0.9);
   border:1px solid rgba(255,0,0,0.3);
-  box-shadow:0 0 10px rgba(0,150,255,0.3);
+  box-shadow:0 0 15px rgba(0,150,255,0.3);
   border-radius:10px;
   padding:10px;
   margin-bottom:15px;
 }
 
-/* LEFT */
-.left{
-  flex:2;
-}
+/* LEFT AND RIGHT */
+.left{ flex:2; min-width:300px; }
+.right{ flex:1; min-width:250px; display:flex; flex-direction:column; gap:15px; max-height:90vh; overflow:auto; }
 
-/* RIGHT */
-.right{
-  flex:1;
-  display:flex;
-  flex-direction:column;
-  gap:15px;
-  max-height:90vh;
-  overflow:auto;
-}
-
-/* INPUT */
-input, textarea{
+/* INPUTS */
+input, select{
   width:100%;
-  margin:5px 0;
   padding:8px;
+  margin:5px 0;
   background:#111;
   color:white;
   border:1px solid #333;
 }
 
-/* BUTTON */
+/* BUTTONS */
 button{
   background:#111;
   border:1px solid red;
   color:white;
-  padding:6px 10px;
+  padding:6px;
   cursor:pointer;
 }
 
@@ -74,45 +66,64 @@ button{
 .item{
   display:flex;
   justify-content:space-between;
-  align-items:center;
   background:#111;
   padding:6px;
   margin-top:5px;
+  cursor:pointer;
 }
 
 .icons{
   display:flex;
   gap:8px;
-  cursor:pointer;
 }
 
-/* SCREENSHOT */
-img{
-  max-width:100%;
-  border-radius:5px;
-}
-
-/* STICKY */
-.note{
+/* ANSWER BOX */
+#answerBox{
   padding:10px;
+  background:#111;
+  min-height:50px;
+  margin-bottom:10px;
+}
+
+/* STICKY NOTES */
+.note{
   border-radius:8px;
-  margin-top:10px;
+  padding:8px;
   color:black;
+  margin-top:10px;
 }
 
 .note-header{
   display:flex;
   justify-content:space-between;
-  cursor:pointer;
   font-weight:bold;
+  cursor:pointer;
 }
 
-.hidden{
-  display:none;
+.note-body{
+  margin-top:5px;
+}
+
+.hidden{ display:none; }
+
+/* Knowledge Base Title */
+.kb-title{
+  margin:20px 0 10px 0;
+  color:#4fc3f7;
+  text-shadow:0 0 5px #4fc3f7, 0 0 10px #00c3ff, 0 0 20px #00f;
+  font-weight:bold;
+  letter-spacing:1px;
+}
+
+.kb-divider{
+  border:none;
+  height:2px;
+  background: linear-gradient(to right, #ff2a2a, #4fc3f7, #ff2a2a);
+  border-radius:1px;
+  margin-bottom:15px;
 }
 </style>
 </head>
-
 <body>
 
 <h1>Appointment AI</h1>
@@ -123,9 +134,12 @@ img{
 <div class="left">
 
 <div class="panel">
-<h3>Screenshot</h3>
-<input type="file" accept="image/*" onchange="loadImage(event)">
-<img id="preview">
+<h3>Select User</h3>
+<select id="userSelect" onchange="switchUser()">
+  <option value="Admin">Admin</option>
+  <option value="User1">User1</option>
+  <option value="User2">User2</option>
+</select>
 </div>
 
 <div class="panel">
@@ -141,10 +155,9 @@ img{
 <div id="qaList"></div>
 </div>
 
-<div class="panel">
-<h3><b>Knowledge Base</b></h3>
-<div id="kbList"></div>
-</div>
+<!-- Knowledge Base title only -->
+<h2 class="kb-title">Knowledge Base</h2>
+<hr class="kb-divider">
 
 <div class="panel">
 <h3>Frequently Asked</h3>
@@ -171,161 +184,202 @@ img{
 </div>
 
 </div>
-
 </div>
 
 <script>
+const usersKey = "appointmentAIUsers";
+let users = JSON.parse(localStorage.getItem(usersKey)) || {};
+let currentUser = document.getElementById("userSelect").value;
 
-let data = [];
-
-/* SCREENSHOT */
-function loadImage(e){
-  let img = document.getElementById('preview');
-  img.src = URL.createObjectURL(e.target.files[0]);
+// Ensure each user has a data structure
+function initUser(user){
+  if(!users[user]){
+    users[user] = {qa:[], notes:[], reminders:[]};
+    saveUsers();
+  }
 }
 
-/* ADD QA */
-function addQA(){
-  let q = document.getElementById('q').value;
-  let a = document.getElementById('a').value;
+// Save all users to localStorage
+function saveUsers(){
+  localStorage.setItem(usersKey, JSON.stringify(users));
+}
 
-  if(!q || !a) return;
-
-  let obj = {q,a};
-  data.push(obj);
-
+// Switch user
+function switchUser(){
+  currentUser = document.getElementById("userSelect").value;
+  initUser(currentUser);
   renderQA();
-  renderKB();
   renderFAQ();
+  renderNotes();
+  renderReminders();
+}
 
+// ADD QA
+function addQA(){
+  let q=document.getElementById('q').value;
+  let a=document.getElementById('a').value;
+  if(!q||!a) return;
+  users[currentUser].qa.push({q,a});
+  saveUsers();
+  renderQA();
+  renderFAQ();
   document.getElementById('q').value="";
   document.getElementById('a').value="";
 }
 
 /* RENDER QA */
 function renderQA(){
-  let list = document.getElementById('qaList');
+  let list=document.getElementById('qaList');
   list.innerHTML="";
-
-  data.forEach((item,i)=>{
-    list.innerHTML += createItem(item.q + " → " + item.a, i);
+  users[currentUser].qa.forEach((item,i)=>{
+    list.innerHTML+=`
+    <div class="item" onclick="showAnswer(${i})">
+      <span contenteditable="true">${item.q} → ${item.a}</span>
+      <div class="icons">
+        <span onclick="event.stopPropagation(); editItem(this)">✏️</span>
+        <span onclick="event.stopPropagation(); saveItem(${i},this)">💾</span>
+        <span onclick="event.stopPropagation(); deleteItem(${i})">🗑</span>
+      </div>
+    </div>`;
   });
 }
 
-/* KNOWLEDGE BASE */
-function renderKB(){
-  let kb = document.getElementById('kbList');
-  kb.innerHTML="";
-
-  data.forEach((item,i)=>{
-    kb.innerHTML += createItem(item.q + " → " + item.a, i);
-  });
-}
-
-/* FAQ AUTO */
+/* FAQ */
 function renderFAQ(){
-  let faq = document.getElementById('faqList');
+  let faq=document.getElementById('faqList');
   faq.innerHTML="";
-
-  data.forEach((item,i)=>{
-    faq.innerHTML += createItem(item.q, i);
+  users[currentUser].qa.forEach((item,i)=>{
+    faq.innerHTML+=`
+    <div class="item">
+      <span contenteditable="true">${item.q}</span>
+      <div class="icons">
+        <span onclick="editItem(this)">✏️</span>
+        <span onclick="saveItem(${i},this)">💾</span>
+        <span onclick="deleteItem(${i})">🗑</span>
+      </div>
+    </div>`;
   });
 }
 
-/* ITEM TEMPLATE */
-function createItem(text, index){
-  return `
-  <div class="item">
-    <span contenteditable="true">${text}</span>
-    <div class="icons">
-      <span onclick="editItem(this)">✏️</span>
-      <span onclick="saveItem(${index}, this)">💾</span>
-      <span onclick="deleteItem(${index})">🗑</span>
-    </div>
-  </div>`;
+/* SHOW ANSWER */
+function showAnswer(i){
+  document.getElementById("answerBox").innerText=users[currentUser].qa[i].a;
 }
 
 /* ICON FUNCTIONS */
-function editItem(el){
-  el.parentElement.parentElement.querySelector("span").focus();
-}
-
-function saveItem(i, el){
-  let text = el.parentElement.parentElement.querySelector("span").innerText;
-  let parts = text.split("→");
-  if(parts.length>=2){
-    data[i] = {q:parts[0].trim(), a:parts[1].trim()};
-    renderQA(); renderKB(); renderFAQ();
+function editItem(el){ el.parentElement.parentElement.querySelector("span").focus(); }
+function saveItem(i,el){
+  let text=el.parentElement.parentElement.querySelector("span").innerText;
+  let parts=text.split("→");
+  if(parts.length>=2){ 
+    users[currentUser].qa[i]={q:parts[0].trim(),a:parts[1].trim()}; 
+    saveUsers();
+    renderQA(); 
+    renderFAQ(); 
   }
 }
+function deleteItem(i){ users[currentUser].qa.splice(i,1); saveUsers(); renderQA(); renderFAQ(); }
 
-function deleteItem(i){
-  data.splice(i,1);
-  renderQA(); renderKB(); renderFAQ();
-}
-
-/* STICKY */
-const colors = ["#ffd54f","#4fc3f7","#ff8a80","#81c784"];
-
+/* STICKY NOTES */
+const colors=["#ffd54f","#4fc3f7","#ff8a80","#81c784","#ce93d8"];
 function addNote(){
-  let text = document.getElementById("noteInput").value;
+  let text=document.getElementById("noteInput").value;
   if(!text) return;
-
-  let color = colors[Math.floor(Math.random()*colors.length)];
-
-  let div = document.createElement("div");
-  div.className="note";
-  div.style.background=color;
-
-  div.innerHTML = `
-  <div class="note-header" onclick="toggleNote(this)">
-    Note
-    <div class="icons">
-      <span onclick="event.stopPropagation(); deleteNote(this)">🗑</span>
-    </div>
-  </div>
-  <div contenteditable="true">${text}</div>
-  `;
-
-  document.getElementById("notes").appendChild(div);
+  let color=colors[Math.floor(Math.random()*colors.length)];
+  users[currentUser].notes.push({text,color});
+  saveUsers();
+  renderNotes();
   document.getElementById("noteInput").value="";
 }
+function renderNotes(){
+  let container=document.getElementById("notes");
+  container.innerHTML="";
+  users[currentUser].notes.forEach((note,i)=>{
+    let div=document.createElement("div");
+    div.className="note";
+    div.style.background=note.color;
+    div.innerHTML=`
+      <div class="note-header">
+        <span onclick="toggleNote(this)">Note</span>
+        <div class="icons">
+          <span onclick="event.stopPropagation(); editNote(this)">✏️</span>
+          <span onclick="event.stopPropagation(); saveNote(${i},this)">💾</span>
+          <span onclick="event.stopPropagation(); changeColor(${i},this)">🎨</span>
+          <span onclick="event.stopPropagation(); deleteNote(${i})">🗑</span>
+        </div>
+      </div>
+      <div class="note-body" contenteditable="true">${note.text}</div>
+    `;
+    container.appendChild(div);
+  });
+}
 
-/* REMINDER */
+/* REMINDERS */
 function addReminder(){
-  let text = document.getElementById("remInput").value;
+  let text=document.getElementById("remInput").value;
   if(!text) return;
-
-  let div = document.createElement("div");
-  div.className="note";
-  div.style.background="#90caf9";
-
-  div.innerHTML = `
-  <div class="note-header" onclick="toggleNote(this)">
-    Reminder
-    <div class="icons">
-      <span onclick="event.stopPropagation(); deleteNote(this)">🗑</span>
-    </div>
-  </div>
-  <div contenteditable="true">${text}</div>
-  `;
-
-  document.getElementById("reminders").appendChild(div);
+  users[currentUser].reminders.push({text});
+  saveUsers();
+  renderReminders();
   document.getElementById("remInput").value="";
 }
-
-/* COLLAPSE */
-function toggleNote(el){
-  let content = el.parentElement.children[1];
-  content.classList.toggle("hidden");
+function renderReminders(){
+  let container=document.getElementById("reminders");
+  container.innerHTML="";
+  users[currentUser].reminders.forEach((rem,i)=>{
+    let div=document.createElement("div");
+    div.className="note";
+    div.style.background="#90caf9";
+    div.innerHTML=`
+      <div class="note-header">
+        <span onclick="toggleNote(this)">Reminder</span>
+        <div class="icons">
+          <span onclick="event.stopPropagation(); editNote(this)">✏️</span>
+          <span onclick="event.stopPropagation(); saveNote(${i},this)">💾</span>
+          <span onclick="event.stopPropagation(); deleteNote(${i})">🗑</span>
+        </div>
+      </div>
+      <div class="note-body" contenteditable="true">${rem.text}</div>
+    `;
+    container.appendChild(div);
+  });
 }
 
-/* DELETE NOTE */
+/* NOTE FUNCTIONS */
+function toggleNote(el){ let body=el.closest(".note").querySelector(".note-body"); body.classList.toggle("hidden"); }
+function editNote(el){ el.closest(".note").querySelector(".note-body").focus(); }
+function saveNote(i,el){
+  let noteBody = el.closest(".note").querySelector(".note-body");
+  if(el.closest(".note").parentElement.id==="notes"){
+    users[currentUser].notes[i].text = noteBody.innerText;
+  } else {
+    users[currentUser].reminders[i].text = noteBody.innerText;
+  }
+  saveUsers();
+  el.closest(".note").style.boxShadow="0 0 15px lime";
+  setTimeout(()=>el.closest(".note").style.boxShadow="",500);
+}
 function deleteNote(el){
-  el.closest(".note").remove();
+  let parent = el.closest(".note").parentElement.id;
+  let notesArr = parent==="notes"?users[currentUser].notes:users[currentUser].reminders;
+  let index = Array.from(el.closest(".note").parentElement.children).indexOf(el.closest(".note"));
+  notesArr.splice(index,1);
+  saveUsers();
+  if(parent==="notes") renderNotes(); else renderReminders();
 }
+function changeColor(i,el){
+  users[currentUser].notes[i].color=colors[Math.floor(Math.random()*colors.length)];
+  saveUsers();
+  renderNotes();
+}
+
+// Initialize
+initUser(currentUser);
+renderQA();
+renderFAQ();
+renderNotes();
+renderReminders();
 
 </script>
-
 </body>
 </html>
