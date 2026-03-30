@@ -2,288 +2,314 @@
 <html lang="en">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Interactive Panels with Blue Background</title>
+<title>Q&A System</title>
+
+<script src="https://html2canvas.hertzen.com/dist/html2canvas.min.js"></script>
+
 <style>
-  body {
+body {
     margin: 0;
-    font-family: 'Segoe UI', Roboto, sans-serif;
+    font-family: Arial;
+    background: linear-gradient(135deg, #0a0f2c, #0f1a4d);
+    color: white;
     display: flex;
     height: 100vh;
-    background: #1e3a8a; /* Old blue background */
-    color: #fff;
-  }
-  .panel {
-    padding: 15px;
-    box-sizing: border-box;
-    overflow-y: auto;
-    border-right: 1px solid rgba(255,255,255,0.2);
-  }
-  #leftPanel { width: 60%; }
-  #rightPanel { width: 40%; }
-  .section {
-    background: rgba(255,255,255,0.1);
-    margin-bottom: 10px;
-    padding: 10px;
-    border-radius: 10px;
-    box-shadow: 0 2px 5px rgba(0,0,0,0.2);
-  }
-  button {
-    margin: 3px;
-    padding: 6px 12px;
-    border-radius: 6px;
-    border: none;
-    cursor: pointer;
-    font-weight: 500;
-    background: #2563eb;
-    color: #fff;
-  }
-  input, textarea {
-    width: calc(100% - 20px);
-    margin-bottom: 5px;
-    padding: 5px;
-    font-family: inherit;
-    font-size: 14px;
-    border-radius: 5px;
-    border: none;
-  }
-  h3 {
-    margin: 5px 0;
-    font-size: 16px;
-  }
-  .sticky-note {
-    width: 150px;
-    min-width: 100px;
-    min-height: 100px;
-    max-width: 300px;
-    max-height: 300px;
-    padding: 8px;
-    margin: 5px;
-    background: #facc15; /* Yellow sticky note */
-    border-radius: 6px;
-    box-shadow: 2px 2px 5px rgba(0,0,0,0.3);
-    cursor: move;
-    overflow: auto;
-    resize: both;
-    color: #000;
-  }
-  .sticky-container {
+}
+
+/* Layout */
+.container {
     display: flex;
-    flex-wrap: wrap;
-  }
+    width: 100%;
+}
+
+/* LEFT PANEL */
+.left {
+    width: 65%;
+    padding: 10px;
+    overflow-y: auto;
+}
+
+/* RIGHT PANEL */
+.right {
+    width: 35%;
+    padding: 10px;
+    border-left: 1px solid rgba(255,255,255,0.2);
+    display: flex;
+    flex-direction: column;
+}
+
+/* Panels */
+.section {
+    background: rgba(255,255,255,0.05);
+    margin-bottom: 10px;
+    border-radius: 10px;
+    border: 1px solid rgba(0,150,255,0.3);
+}
+
+.header {
+    padding: 10px;
+    cursor: pointer;
+    background: rgba(0,0,0,0.3);
+}
+
+.content {
+    display: none;
+    padding: 10px;
+}
+
+/* Inputs */
+input, textarea {
+    width: 100%;
+    margin: 5px 0;
+    padding: 5px;
+    background: #0f1a4d;
+    border: 1px solid #00aaff;
+    color: white;
+}
+
+/* Buttons */
+button {
+    margin: 5px 0;
+    padding: 5px;
+    background: transparent;
+    border: 1px solid #00aaff;
+    color: white;
+    cursor: pointer;
+}
+
+button:hover {
+    background: #00aaff;
+}
+
+/* Sticky Notes */
+.note {
+    position: absolute;
+    background: #1e2a6d;
+    padding: 10px;
+    border-radius: 8px;
+    cursor: move;
+}
+
+/* Reminder */
+.reminder {
+    background: rgba(255,255,255,0.1);
+    padding: 5px;
+    margin: 5px 0;
+}
+
 </style>
 </head>
+
 <body>
 
-<!-- LEFT PANEL -->
-<div class="panel" id="leftPanel">
-  <!-- Screenshot -->
-  <div class="section">
-    <button id="screenshotBtn">Take Screenshot</button>
-  </div>
+<div class="container">
 
-  <!-- Manual Questions -->
-  <div class="section">
-    <h3>Manual Questions / Objections</h3>
-    <input type="text" id="manualQuestion" placeholder="Enter question or objection">
-    <input type="text" id="manualAnswer" placeholder="Enter answer">
-    <button onclick="addQuestion()">Add / Save</button>
-  </div>
+<!-- LEFT -->
+<div class="left" id="leftPanel">
 
-  <!-- Automatic Answers -->
-  <div class="section">
-    <h3>Automatic Answers</h3>
-    <div id="autoAnswers" class="sticky-container"></div>
-  </div>
-
-  <!-- Options -->
-  <div class="section">
-    <h3>Options</h3>
-    <button onclick="clearQuestions()">Clear All Questions</button>
-  </div>
-
-  <!-- Knowledge Base -->
-  <div class="section">
-    <h3>Knowledge Base</h3>
-    <div id="knowledgeBase" class="sticky-container"></div>
-  </div>
-
-  <!-- Pre-Questions / Answers -->
-  <div class="section">
-    <h3>Pre-Questions / Answers</h3>
-    <div id="preQA" class="sticky-container"></div>
-  </div>
+<!-- Screenshot -->
+<div class="section">
+<div class="header" onclick="toggle(this)">📸 Screenshot Options</div>
+<div class="content">
+<button onclick="capture('leftPanel')">Capture Left Panel</button>
+</div>
 </div>
 
-<!-- RIGHT PANEL -->
-<div class="panel" id="rightPanel">
-  <!-- Reminders -->
-  <div class="section">
-    <h3>Reminders</h3>
-    <input type="text" id="reminderInput" placeholder="Enter reminder">
-    <button onclick="addReminder()">Add Reminder</button>
-    <div id="reminderNotes" class="sticky-container"></div>
-  </div>
-
-  <!-- Sticky Notes -->
-  <div class="section">
-    <h3>Sticky Notes</h3>
-    <button onclick="createSticky('stickyNotes')">Add Note</button>
-    <div id="stickyNotes" class="sticky-container"></div>
-  </div>
+<!-- Manual Q&A -->
+<div class="section">
+<div class="header" onclick="toggle(this)">🧠 Manual Questions</div>
+<div class="content" id="qaList"></div>
 </div>
 
-<script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
+<!-- Auto Answer -->
+<div class="section">
+<div class="header" onclick="toggle(this)">⚡ Automatic Answers</div>
+<div class="content">
+<input id="autoInput" placeholder="Type question..." oninput="autoAnswer()">
+<div id="autoResult"></div>
+</div>
+</div>
+
+<!-- Add Q&A -->
+<div class="section">
+<div class="header" onclick="toggle(this)">➕ Add Q&A</div>
+<div class="content">
+<input id="q" placeholder="Question">
+<textarea id="a" placeholder="Answer"></textarea>
+<input id="k" placeholder="Keywords (comma separated)">
+<button onclick="addQA()">Save</button>
+</div>
+</div>
+
+<!-- Knowledge -->
+<div class="section">
+<div class="header" onclick="toggle(this)">📚 Knowledge Base</div>
+<div class="content" id="knowledge"></div>
+</div>
+
+</div>
+
+<!-- RIGHT -->
+<div class="right">
+
+<!-- Reminders -->
+<div style="flex:1;">
+<h3>📝 Reminders</h3>
+<input id="remInput" placeholder="Add reminder">
+<button onclick="addReminder()">Add</button>
+<div id="remList"></div>
+</div>
+
+<!-- Sticky Notes -->
+<div style="flex:1; position:relative;">
+<h3>📌 Sticky Notes</h3>
+<button onclick="addNote()">Add Note</button>
+</div>
+
+</div>
+
+</div>
+
 <script>
-  // --- Sticky Note Utility ---
-  function makeSticky(containerId, content='', color='#facc15') {
-    const container = document.getElementById(containerId);
-    const note = document.createElement('div');
-    note.className = 'sticky-note';
+
+/* TOGGLE */
+function toggle(el){
+    let content = el.nextElementSibling;
+    content.style.display = content.style.display === "block" ? "none" : "block";
+}
+
+/* STORAGE */
+let data = JSON.parse(localStorage.getItem("data")) || {
+    qa: [],
+    knowledge: [
+        {q:"price", a:"Our pricing depends on service.", k:["price","cost"]},
+        {q:"location", a:"We operate online.", k:["location"]}
+    ]
+};
+
+/* SAVE */
+function save(){
+    localStorage.setItem("data", JSON.stringify(data));
+}
+
+/* ADD QA */
+function addQA(){
+    let q = document.getElementById("q").value;
+    let a = document.getElementById("a").value;
+    let k = document.getElementById("k").value.split(",");
+
+    data.qa.push({q,a,k});
+    save();
+    renderQA();
+}
+
+/* RENDER QA */
+function renderQA(){
+    let container = document.getElementById("qaList");
+    container.innerHTML = "";
+
+    data.qa.forEach((item,i)=>{
+        let div = document.createElement("div");
+        div.innerHTML = `
+            <b>${item.q}</b>
+            <p>${item.a}</p>
+            <button onclick="deleteQA(${i})">Delete</button>
+        `;
+        container.appendChild(div);
+    });
+}
+
+/* DELETE */
+function deleteQA(i){
+    data.qa.splice(i,1);
+    save();
+    renderQA();
+}
+
+/* AUTO ANSWER */
+function autoAnswer(){
+    let input = document.getElementById("autoInput").value.toLowerCase();
+    let result = document.getElementById("autoResult");
+    result.innerHTML = "";
+
+    let all = [...data.qa, ...data.knowledge];
+
+    all.forEach(item=>{
+        let match = item.k.some(k=>input.includes(k));
+        if(match){
+            result.innerHTML += `<p><b>Answer:</b> ${item.a}</p>`;
+        }
+    });
+}
+
+/* RENDER KNOWLEDGE */
+function renderKnowledge(){
+    let container = document.getElementById("knowledge");
+    container.innerHTML = "";
+
+    data.knowledge.forEach(item=>{
+        let div = document.createElement("div");
+        div.innerHTML = `<b>${item.q}</b><p>${item.a}</p>`;
+        container.appendChild(div);
+    });
+}
+
+/* REMINDERS */
+function addReminder(){
+    let val = document.getElementById("remInput").value;
+    let div = document.createElement("div");
+    div.className="reminder";
+    div.textContent = val;
+    document.getElementById("remList").appendChild(div);
+}
+
+/* STICKY NOTES */
+function addNote(){
+    let note = document.createElement("div");
+    note.className="note";
     note.contentEditable = true;
-    note.style.background = color;
-    note.innerText = content;
-    note.onmousedown = dragMouseDown;
-    container.appendChild(note);
+    note.innerText="Note...";
+    note.style.top="100px";
+    note.style.left="70%";
 
-    note.oncontextmenu = (e) => {
-      e.preventDefault();
-      container.removeChild(note);
-      saveAll();
-    }
+    document.body.appendChild(note);
 
-    note.onblur = saveAll;
-    return note;
-  }
+    note.onmousedown = function(e){
+        let shiftX = e.clientX - note.getBoundingClientRect().left;
+        let shiftY = e.clientY - note.getBoundingClientRect().top;
 
-  function createSticky(containerId) {
-    makeSticky(containerId, 'New Note');
-    saveAll();
-  }
+        function moveAt(pageX, pageY){
+            note.style.left = pageX - shiftX + 'px';
+            note.style.top = pageY - shiftY + 'px';
+        }
 
-  // --- Drag & Drop ---
-  let offsetX, offsetY, currentNote;
-  function dragMouseDown(e) {
-    if (!e.target.classList.contains('sticky-note')) return;
-    currentNote = e.target;
-    offsetX = e.clientX - currentNote.offsetLeft;
-    offsetY = e.clientY - currentNote.offsetTop;
-    document.onmousemove = elementDrag;
-    document.onmouseup = stopDrag;
-  }
-  function elementDrag(e) {
-    e.preventDefault();
-    currentNote.style.position = 'absolute';
-    currentNote.style.left = (e.clientX - offsetX) + 'px';
-    currentNote.style.top = (e.clientY - offsetY) + 'px';
-  }
-  function stopDrag() {
-    document.onmousemove = null;
-    document.onmouseup = null;
-    saveAll();
-  }
+        function onMouseMove(e){
+            moveAt(e.pageX, e.pageY);
+        }
 
-  // --- LEFT PANEL FUNCTIONALITY ---
-  let questions = [];
-  function addQuestion() {
-    const qInput = document.getElementById('manualQuestion');
-    const aInput = document.getElementById('manualAnswer');
-    if (!qInput.value) return alert('Question required');
-    const qa = { q: qInput.value, a: aInput.value };
-    questions.push(qa);
-    updateKnowledgeBase();
-    updatePreQA();
-    qInput.value=''; aInput.value='';
-    saveAll();
-  }
+        document.addEventListener('mousemove', onMouseMove);
 
-  function updateKnowledgeBase() {
-    const kb = document.getElementById('knowledgeBase');
-    kb.innerHTML='';
-    questions.forEach(qa=>{
-      makeSticky('knowledgeBase', `Q: ${qa.q}\nA: ${qa.a}`);
+        note.onmouseup = function(){
+            document.removeEventListener('mousemove', onMouseMove);
+        };
+    };
+}
+
+/* SCREENSHOT */
+function capture(id){
+    html2canvas(document.getElementById(id)).then(canvas=>{
+        let link = document.createElement("a");
+        link.download = "screenshot.png";
+        link.href = canvas.toDataURL();
+        link.click();
     });
-  }
+}
 
-  function updatePreQA() {
-    const pre = document.getElementById('preQA');
-    pre.innerHTML='';
-    questions.forEach(qa=>{
-      makeSticky('preQA', `Q: ${qa.q}\nA: ${qa.a}`);
-    });
-  }
+/* INIT */
+renderQA();
+renderKnowledge();
 
-  function clearQuestions() {
-    questions=[];
-    document.getElementById('knowledgeBase').innerHTML='';
-    document.getElementById('preQA').innerHTML='';
-    saveAll();
-  }
-
-  // Automatic Answers
-  function updateAutoAnswers() {
-    const auto = document.getElementById('autoAnswers');
-    auto.innerHTML='';
-    if (questions.length>0) {
-      makeSticky('autoAnswers', questions[questions.length-1].a || 'No answer yet');
-    }
-  }
-  setInterval(updateAutoAnswers,1000);
-
-  // --- RIGHT PANEL FUNCTIONALITY ---
-  function addReminder() {
-    const input = document.getElementById('reminderInput');
-    if(!input.value) return;
-    makeSticky('reminderNotes', input.value, '#34d399');
-    input.value='';
-    saveAll();
-  }
-
-  // --- Screenshot ---
-  document.getElementById('screenshotBtn').onclick = function(){
-    html2canvas(document.getElementById('leftPanel')).then(canvas=>{
-      const link = document.createElement('a');
-      link.download = 'leftPanel.png';
-      link.href = canvas.toDataURL();
-      link.click();
-    });
-  }
-
-  // --- AUTOSAVE & LOAD ---
-  function saveAll() {
-    localStorage.setItem('questions', JSON.stringify(questions));
-    const stickyIds = ['stickyNotes','reminderNotes','knowledgeBase','preQA','autoAnswers'];
-    stickyIds.forEach(id=>{
-      const notes = Array.from(document.getElementById(id).children).map(n=>({
-        content: n.innerText,
-        color: n.style.background,
-        left: n.style.left,
-        top: n.style.top
-      }));
-      localStorage.setItem(id, JSON.stringify(notes));
-    });
-  }
-
-  function loadAll() {
-    const savedQ = JSON.parse(localStorage.getItem('questions') || '[]');
-    if(savedQ.length) {
-      questions = savedQ;
-      updateKnowledgeBase();
-      updatePreQA();
-    }
-    const stickyIds = ['stickyNotes','reminderNotes','knowledgeBase','preQA','autoAnswers'];
-    stickyIds.forEach(id=>{
-      const savedNotes = JSON.parse(localStorage.getItem(id) || '[]');
-      savedNotes.forEach(n=>{
-        const note = makeSticky(id, n.content, n.color);
-        if(n.left) note.style.left = n.left;
-        if(n.top) note.style.top = n.top;
-        note.style.position = (n.left && n.top) ? 'absolute':'';
-      });
-    });
-  }
-
-  window.onload = loadAll;
 </script>
+
 </body>
 </html>
