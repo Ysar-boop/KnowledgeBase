@@ -3,37 +3,53 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Interactive Panels</title>
+<title>Interactive Panels with Blue Background</title>
 <style>
   body {
     margin: 0;
     font-family: 'Segoe UI', Roboto, sans-serif;
     display: flex;
     height: 100vh;
-    background: #f4f4f9;
+    background: #1e3a8a; /* Old blue background */
+    color: #fff;
   }
   .panel {
-    width: 50%;
-    padding: 10px;
+    padding: 15px;
     box-sizing: border-box;
     overflow-y: auto;
-    border-right: 1px solid #ddd;
-    background: #fdfdfd;
+    border-right: 1px solid rgba(255,255,255,0.2);
   }
+  #leftPanel { width: 60%; }
+  #rightPanel { width: 40%; }
   .section {
-    background: #fff;
+    background: rgba(255,255,255,0.1);
     margin-bottom: 10px;
     padding: 10px;
-    border-radius: 8px;
-    box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+    border-radius: 10px;
+    box-shadow: 0 2px 5px rgba(0,0,0,0.2);
   }
   button {
     margin: 3px;
-    padding: 5px 10px;
-    border-radius: 5px;
+    padding: 6px 12px;
+    border-radius: 6px;
     border: none;
     cursor: pointer;
     font-weight: 500;
+    background: #2563eb;
+    color: #fff;
+  }
+  input, textarea {
+    width: calc(100% - 20px);
+    margin-bottom: 5px;
+    padding: 5px;
+    font-family: inherit;
+    font-size: 14px;
+    border-radius: 5px;
+    border: none;
+  }
+  h3 {
+    margin: 5px 0;
+    font-size: 16px;
   }
   .sticky-note {
     width: 150px;
@@ -43,31 +59,17 @@
     max-height: 300px;
     padding: 8px;
     margin: 5px;
-    background: #fff8b0;
+    background: #facc15; /* Yellow sticky note */
     border-radius: 6px;
-    box-shadow: 2px 2px 5px rgba(0,0,0,0.2);
+    box-shadow: 2px 2px 5px rgba(0,0,0,0.3);
     cursor: move;
     overflow: auto;
     resize: both;
+    color: #000;
   }
   .sticky-container {
     display: flex;
     flex-wrap: wrap;
-  }
-  input, textarea {
-    width: calc(100% - 20px);
-    margin-bottom: 5px;
-    padding: 5px;
-    font-family: inherit;
-    font-size: 14px;
-  }
-  h3 {
-    margin: 5px 0;
-    font-size: 16px;
-  }
-  #screenshotBtn {
-    background: #4CAF50;
-    color: white;
   }
 </style>
 </head>
@@ -94,7 +96,7 @@
     <div id="autoAnswers" class="sticky-container"></div>
   </div>
 
-  <!-- Options for Questions/Answers -->
+  <!-- Options -->
   <div class="section">
     <h3>Options</h3>
     <button onclick="clearQuestions()">Clear All Questions</button>
@@ -106,7 +108,7 @@
     <div id="knowledgeBase" class="sticky-container"></div>
   </div>
 
-  <!-- Pre Questions/Answers -->
+  <!-- Pre-Questions / Answers -->
   <div class="section">
     <h3>Pre-Questions / Answers</h3>
     <div id="preQA" class="sticky-container"></div>
@@ -131,9 +133,10 @@
   </div>
 </div>
 
+<script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
 <script>
-  // Utility for creating sticky notes
-  function makeSticky(containerId, content='', color='#fff8b0') {
+  // --- Sticky Note Utility ---
+  function makeSticky(containerId, content='', color='#facc15') {
     const container = document.getElementById(containerId);
     const note = document.createElement('div');
     note.className = 'sticky-note';
@@ -143,18 +146,22 @@
     note.onmousedown = dragMouseDown;
     container.appendChild(note);
 
-    // Right-click to delete
     note.oncontextmenu = (e) => {
       e.preventDefault();
       container.removeChild(note);
+      saveAll();
     }
+
+    note.onblur = saveAll;
+    return note;
   }
 
   function createSticky(containerId) {
     makeSticky(containerId, 'New Note');
+    saveAll();
   }
 
-  // Drag and drop
+  // --- Drag & Drop ---
   let offsetX, offsetY, currentNote;
   function dragMouseDown(e) {
     if (!e.target.classList.contains('sticky-note')) return;
@@ -173,9 +180,10 @@
   function stopDrag() {
     document.onmousemove = null;
     document.onmouseup = null;
+    saveAll();
   }
 
-  // LEFT PANEL FUNCTIONALITY
+  // --- LEFT PANEL FUNCTIONALITY ---
   let questions = [];
   function addQuestion() {
     const qInput = document.getElementById('manualQuestion');
@@ -186,12 +194,13 @@
     updateKnowledgeBase();
     updatePreQA();
     qInput.value=''; aInput.value='';
+    saveAll();
   }
 
   function updateKnowledgeBase() {
     const kb = document.getElementById('knowledgeBase');
     kb.innerHTML='';
-    questions.forEach((qa,i)=>{
+    questions.forEach(qa=>{
       makeSticky('knowledgeBase', `Q: ${qa.q}\nA: ${qa.a}`);
     });
   }
@@ -199,7 +208,6 @@
   function updatePreQA() {
     const pre = document.getElementById('preQA');
     pre.innerHTML='';
-    const freq = questions.length;
     questions.forEach(qa=>{
       makeSticky('preQA', `Q: ${qa.q}\nA: ${qa.a}`);
     });
@@ -209,9 +217,10 @@
     questions=[];
     document.getElementById('knowledgeBase').innerHTML='';
     document.getElementById('preQA').innerHTML='';
+    saveAll();
   }
 
-  // Automatic Answers (simple example: mirrors last answer added)
+  // Automatic Answers
   function updateAutoAnswers() {
     const auto = document.getElementById('autoAnswers');
     auto.innerHTML='';
@@ -219,18 +228,18 @@
       makeSticky('autoAnswers', questions[questions.length-1].a || 'No answer yet');
     }
   }
+  setInterval(updateAutoAnswers,1000);
 
-  setInterval(updateAutoAnswers,1000); // update every second
-
-  // RIGHT PANEL FUNCTIONALITY
+  // --- RIGHT PANEL FUNCTIONALITY ---
   function addReminder() {
     const input = document.getElementById('reminderInput');
     if(!input.value) return;
-    makeSticky('reminderNotes', input.value, '#d0f0c0');
+    makeSticky('reminderNotes', input.value, '#34d399');
     input.value='';
+    saveAll();
   }
 
-  // Screenshot function for left panel
+  // --- Screenshot ---
   document.getElementById('screenshotBtn').onclick = function(){
     html2canvas(document.getElementById('leftPanel')).then(canvas=>{
       const link = document.createElement('a');
@@ -240,9 +249,41 @@
     });
   }
 
-</script>
+  // --- AUTOSAVE & LOAD ---
+  function saveAll() {
+    localStorage.setItem('questions', JSON.stringify(questions));
+    const stickyIds = ['stickyNotes','reminderNotes','knowledgeBase','preQA','autoAnswers'];
+    stickyIds.forEach(id=>{
+      const notes = Array.from(document.getElementById(id).children).map(n=>({
+        content: n.innerText,
+        color: n.style.background,
+        left: n.style.left,
+        top: n.style.top
+      }));
+      localStorage.setItem(id, JSON.stringify(notes));
+    });
+  }
 
-<!-- Include html2canvas for screenshot -->
-<script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
+  function loadAll() {
+    const savedQ = JSON.parse(localStorage.getItem('questions') || '[]');
+    if(savedQ.length) {
+      questions = savedQ;
+      updateKnowledgeBase();
+      updatePreQA();
+    }
+    const stickyIds = ['stickyNotes','reminderNotes','knowledgeBase','preQA','autoAnswers'];
+    stickyIds.forEach(id=>{
+      const savedNotes = JSON.parse(localStorage.getItem(id) || '[]');
+      savedNotes.forEach(n=>{
+        const note = makeSticky(id, n.content, n.color);
+        if(n.left) note.style.left = n.left;
+        if(n.top) note.style.top = n.top;
+        note.style.position = (n.left && n.top) ? 'absolute':'';
+      });
+    });
+  }
+
+  window.onload = loadAll;
+</script>
 </body>
 </html>
