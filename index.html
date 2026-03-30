@@ -138,13 +138,17 @@ function renderKB(){
   });
 }
 
+// Bind elements
+const addQABtn = document.getElementById('addQA');
+const addKBBtn = document.getElementById('addKB');
+
 // Add
-addQA.onclick=()=>{
+addQABtn.onclick=()=>{
   const q=qInput.value.trim(); const k=kInput.value.split(',').map(x=>x.trim()).filter(Boolean); const a=aInput.value.trim();
   if(!q||!k.length||!a) return;
   qaData.push({q,keywords:k,a}); qInput.value='';kInput.value='';aInput.value=''; renderQA();
 };
-addKB.onclick=()=>{
+addKBBtn.onclick=()=>{
   const k=kbKeywords.value.split(',').map(x=>x.trim()).filter(Boolean); const a=kbAnswer.value.trim();
   if(!k.length||!a) return;
   kbData.push({keywords:k,a}); kbKeywords.value='';kbAnswer.value=''; renderKB();
@@ -210,4 +214,5 @@ copyBtn.onclick=()=>{navigator.clipboard.writeText(mainAnswer.innerText||'');};
 </script>
 </body>
 </html>
+
 
